@@ -100,6 +100,16 @@ class GxOrder extends BaseEntity
      */
     private $showJumpUrl;
 
+    /**
+     * @ORM\Column(type="bigint")
+     */
+    private $createTime;
+
+    /**
+     * @ORM\Column(type="bigint")
+     */
+    private $updateTime;
+
     public function __construct()
     {
         parent::__construct();
@@ -309,6 +319,30 @@ class GxOrder extends BaseEntity
     public function setShowJumpUrl(string $showJumpUrl): self
     {
         $this->showJumpUrl = $showJumpUrl;
+
+        return $this;
+    }
+
+    public function getCreateTime(): ?int
+    {
+        return $this->createTime;
+    }
+
+    public function setCreateTime(int $createTime): self
+    {
+        $this->createTime = $createTime;
+
+        return $this;
+    }
+
+    public function getUpdateTime(): ?int
+    {
+        return $this->updateTime;
+    }
+
+    public function setUpdateTime(int $updateTime): self
+    {
+        $this->updateTime = $updateTime;
 
         return $this;
     }
