@@ -1,0 +1,11 @@
+nelmio_cors:
+    defaults:
+        allow_credentials: true
+        origin_regex: true
+        allow_origin: ['%env(resolve:CORS_ALLOW_ORIGIN)%']
+        allow_methods: ['GET', 'POST']
+        allow_headers: ['Cache-Control','Content-Type','DNT','If-Modified-Since','Keep-Alive','Origin','User-Agent', 'X-REQUESTED-WITH', 'BY-SESSION-ID', 'BY-CLIENT-ID', 'Content-Type', 'Authorization']
+        max_age: 3600
+    paths:
+        '^/admin/': ~
+        '^/': ~

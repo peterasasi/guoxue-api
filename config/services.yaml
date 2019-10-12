@@ -1,0 +1,60 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        public: false       # Allows optimizing the container by removing unused services; this also means
+                            # fetching services directly from the container via $container->get() won't work.
+                            # The best practice is to be explicit about your dependencies anyway.
+        # 自定义服务别名
+#    app.helper.circular_reference_handler:
+#        alias: App\Service\CircularReferenceHandlerService
+#        public: true
+#    app.service.rate_limit_redis_instance:
+#        alias: App\Service\RateLimitRedisInstance
+#        public: false
+#    App\Exception\RateLimitResponseException:
+#        alias: app.exception.rate_limit_response_exception
+#        public: true
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Helper,Migrations,Tests,Kernel.php}'
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\AdminController\:
+        resource: '../src/AdminController'
+        tags: ['controller.service_arguments']
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+#    by\component\paging\:
+#        resource: '../vendor/asasi/architecture/src/component/paging/'
+#        tags: ['controller.service_arguments']
+    app.entity.clients:
+        class: App\Entity\Clients
+        autowire: true
+
+    Dbh\SfCoreBundle\Common\UserAccountServiceInterface: '@App\Service\UserAccountService'
+    Dbh\SfCoreBundle\Common\UserProfileServiceInterface: '@App\Service\UserProfileService'
+    Dbh\SfCoreBundle\Common\LoginSessionInterface: '@App\Service\LoginSessionService'
+    Dbh\SfCoreBundle\Common\ClientsInterface: '@app.entity.clients'
+    Dbh\SfCoreBundle\Common\GetClientsInterface: '@App\Service\ClientsService'
+    Dbh\SfCoreBundle\Common\UserLogServiceInterface: '@App\Service\UserLogService'
+parameters:
+    locale: 'en'
+    public_dir: '%kernel.project_dir%/../../shared/public/'
+    uploader_dir: 'uploads/'
+    sitemap_dir: 'sitemap/'

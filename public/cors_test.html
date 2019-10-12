@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>跨域测试</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" type="text/javascript"></script>
+</head>
+<body>
+<div>
+    <button onclick="ajaxPost()">Post请求</button>
+</div>
+<script type="text/javascript">
+    function ajaxPost() {
+        $.ajax({
+            url: 'http://api.guoxue.com/admin',
+            type: 'post',
+            dataType: 'json',
+            beforeSend: function (request) {
+                request.setRequestHeader("BY-SESSION-ID", "1");
+                request.setRequestHeader("BY-CLIENT-ID", "");
+                request.setRequestHeader('X-REQUESTED-WITH', '1');
+            },
+            data: {
+                app_version: '1.0.0',
+                app_type: 'ios',
+                app_request_time: '0',
+                service_type: 'by_Banners_query',
+                service_version: '100',
+            }
+        }).done(function (data) {
+            console.log(data);
+        }).fail(function (data) {
+            console.log(data);
+        })
+    }
+</script>
+</body>
+</html>

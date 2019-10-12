@@ -1,0 +1,31 @@
+{# templates/web/card.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}支付异常{% endblock %}
+{% block stylesheets %}
+    <style type="text/css">
+        .main {
+            width: 100%;
+            padding: 0rem;
+            background: #F3F3F3;
+            height: 640px;
+            height: calc(100vh);
+            text-align: center;
+        }
+
+        .main div {
+            font-size: 1.6rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="main">
+        <div>
+            {{ msg }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+
+{% endblock %}

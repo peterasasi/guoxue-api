@@ -1,0 +1,51 @@
+{# templates/web/card.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}支付成功{% endblock %}
+{% block stylesheets %}
+    <style type="text/css">
+        .main {
+            width: 100%;
+            padding: 0rem;
+            background: #F3F3F3;
+            height: 640px;
+            height: calc(100vh);
+            text-align: center;
+        }
+
+        .pay-info {
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="main">
+        <div class="pay-info">
+            <div style="font-size: 18px;font-weight: bold;color:red;">交易成功</div>
+            {% if order_no %}
+            <div>商户订单号:{{ order_no }}</div>
+            <div>总金额:{{ total_amount }}元</div>
+            {% endif %}
+
+            {% if url %}
+            <div id="jump" ><span id="counter">3</span>秒后自动跳转回<a href="/">首页</a></div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript">
+        function countDown(secs) {
+            document.getElementById('counter').innerText = secs;
+            if (--secs >= 0) {
+                setTimeout("countDown(" + secs + ")", 1000);
+            } else {
+                window.location.href = "{{ url }}";
+            }
+        }
+        {% if url %}
+        countDown(3);
+        {% else %}
+        {% endif %}
+    </script>
+{% endblock %}

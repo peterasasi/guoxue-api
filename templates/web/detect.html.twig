@@ -1,0 +1,65 @@
+{# templates/web/card.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}办卡{% endblock %}
+{% block stylesheets %}
+    <style type="text/css">
+        .main {
+            width: 100%;
+            padding: 0rem;
+            background: #F3F3F3;
+            height: 640px;
+            height: calc(100vh);
+        }
+        .main div{
+            font-size: 1.6rem;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="main">
+        <h3>浏览器:<span id="browser"></span></h3>
+        <h3>操作系统:<span id="os"></span></h3>
+        <h3>设备:<span id="device"></span></h3>
+
+        <h3>ua:</h3>
+
+        <div id="ua"></div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="{{ asset("detect.js") }}"></script>
+    <script type="text/javascript">
+        var ua = detect.parse(navigator.userAgent);
+        console.log(ua.browser, ua.device, ua.os);
+
+        document.getElementById('device').innerHTML = ua.device.name || ua.device.family;
+        document.getElementById('browser').innerHTML = ua.browser.name || ua.browser.family;
+        document.getElementById('os').innerHTML = ua.os.name || ua.os.family;
+        // 所有信息
+        document.getElementById('ua').innerHTML = JSON.stringify(ua);
+        // ua.browser.family // "Mobile Safari"
+        // ua.browser.name // "Mobile Safari 4.0.5"
+        // ua.browser.version // "4.0.5"
+        // ua.browser.major // 4
+        // ua.browser.minor // 0
+        // ua.browser.patch // 5
+        //
+        // ua.device.family // "iPhone"
+        // ua.device.name // "iPhone"
+        // ua.device.version // ""
+        // ua.device.major // null
+        // ua.device.minor // null
+        // ua.device.patch // null
+        // ua.device.type // "Mobile"
+        // ua.device.manufacturer // "Apple"
+        //
+        // ua.os.family // "iOS"
+        // ua.os.name // "iOS 4"
+        // ua.os.version // "4"
+        // ua.os.major // 4
+        // ua.os.minor // 0
+        // ua.os.patch // null
+    </script>
+{% endblock %}

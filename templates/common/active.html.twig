@@ -1,0 +1,34 @@
+{# templates/web/card.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}账户激活{% endblock %}
+{% block stylesheets %}
+<style type="text/css">
+    .main {
+        width: 100%;
+        padding: 0rem;
+        background: #F3F3F3;
+        height: 640px;
+        height: calc(100vh);
+        text-align: center;
+    }
+
+    .main div {
+        font-size: 1.6rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="main">
+    {% if ret == '1' %}
+    <h4>激活成功</h4>
+        <!-- TODO: 安全性可以增加一个验证用户密码的 -->
+    {% else %}
+    <h4>激活失败</h4>
+    {% endif%}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+
+{% endblock %}

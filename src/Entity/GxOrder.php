@@ -1,0 +1,315 @@
+<?php
+
+namespace App\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Entity(repositoryClass="App\Repository\GxOrderRepository")
+ */
+class GxOrder extends BaseEntity
+{
+    const PayInitial = 0;
+
+    const Paid = 1;
+
+    /**
+     * @ORM\Id()
+     * @ORM\GeneratedValue()
+     * @ORM\Column(type="integer")
+     */
+    private $id;
+
+    /**
+     * @ORM\Column(type="string", length=48)
+     */
+    private $orderNo;
+
+    /**
+     * @ORM\Column(type="decimal", precision=16, scale=4)
+     */
+    private $amount;
+
+    /**
+     * @ORM\Column(type="decimal", precision=16, scale=4)
+     */
+    private $arrivalAmount;
+
+    /**
+     * @ORM\Column(type="decimal", precision=16, scale=4)
+     */
+    private $fee;
+
+    /**
+     * @ORM\Column(type="string", length=256)
+     */
+    private $remark;
+
+    /**
+     * @ORM\Column(type="bigint")
+     */
+    private $uid;
+
+    /**
+     * @ORM\Column(type="smallint")
+     */
+    private $processed;
+
+    /**
+     * @ORM\Column(type="smallint")
+     */
+    private $payStatus;
+
+    /**
+     * @ORM\Column(type="bigint")
+     */
+    private $paidTime;
+
+    /**
+     * @ORM\Column(type="string", length=512)
+     */
+    private $exceptionMsg;
+
+    /**
+     * @ORM\Column(type="string", length=12)
+     */
+    private $createMonth;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $vipItemId;
+
+    /**
+     * @ORM\Column(type="string", length=32)
+     */
+    private $projectId;
+
+    /**
+     * @ORM\Column(type="string", length=64)
+     */
+    private $sign;
+
+    /**
+     * @ORM\Column(type="string", length=64)
+     */
+    private $payRetOrderId;
+
+    /**
+     * @ORM\Column(type="string", length=256)
+     */
+    private $showJumpUrl;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setExceptionMsg('');
+        $this->setPaidTime(0);
+        $this->setPayStatus(self::PayInitial);
+        $this->setProcessed(0);
+        $this->setRemark('');
+        $this->setFee(0);
+        $this->setCreateMonth(date("Ym", time()));
+        $this->setVipItemId(0);
+        $this->setPayRetOrderId('');
+        $this->setSign('');
+        $this->setShowJumpUrl('');
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getOrderNo(): ?string
+    {
+        return $this->orderNo;
+    }
+
+    public function setOrderNo(string $orderNo): self
+    {
+        $this->orderNo = $orderNo;
+
+        return $this;
+    }
+
+    public function getAmount()
+    {
+        return $this->amount;
+    }
+
+    public function setAmount($amount): self
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getArrivalAmount()
+    {
+        return $this->arrivalAmount;
+    }
+
+    public function setArrivalAmount($arrivalAmount): self
+    {
+        $this->arrivalAmount = $arrivalAmount;
+
+        return $this;
+    }
+
+    public function getFee()
+    {
+        return $this->fee;
+    }
+
+    public function setFee($fee): self
+    {
+        $this->fee = $fee;
+
+        return $this;
+    }
+
+    public function getRemark(): ?string
+    {
+        return $this->remark;
+    }
+
+    public function setRemark(string $remark): self
+    {
+        $this->remark = $remark;
+
+        return $this;
+    }
+
+    public function getUid(): ?int
+    {
+        return $this->uid;
+    }
+
+    public function setUid(int $uid): self
+    {
+        $this->uid = $uid;
+
+        return $this;
+    }
+
+    public function getProcessed(): ?int
+    {
+        return $this->processed;
+    }
+
+    public function setProcessed(int $processed): self
+    {
+        $this->processed = $processed;
+
+        return $this;
+    }
+
+    public function getPayStatus(): ?int
+    {
+        return $this->payStatus;
+    }
+
+    public function setPayStatus(int $payStatus): self
+    {
+        $this->payStatus = $payStatus;
+
+        return $this;
+    }
+
+    public function getPaidTime(): ?int
+    {
+        return $this->paidTime;
+    }
+
+    public function setPaidTime(int $paidTime): self
+    {
+        $this->paidTime = $paidTime;
+
+        return $this;
+    }
+
+    public function getExceptionMsg(): ?string
+    {
+        return $this->exceptionMsg;
+    }
+
+    public function setExceptionMsg(string $exceptionMsg): self
+    {
+        $this->exceptionMsg = $exceptionMsg;
+
+        return $this;
+    }
+
+    public function getCreateMonth(): ?string
+    {
+        return $this->createMonth;
+    }
+
+    public function setCreateMonth(string $createMonth): self
+    {
+        $this->createMonth = $createMonth;
+
+        return $this;
+    }
+
+    public function getVipItemId(): ?int
+    {
+        return $this->vipItemId;
+    }
+
+    public function setVipItemId(int $vipItemId): self
+    {
+        $this->vipItemId = $vipItemId;
+
+        return $this;
+    }
+
+    public function getProjectId(): ?string
+    {
+        return $this->projectId;
+    }
+
+    public function setProjectId(string $projectId): self
+    {
+        $this->projectId = $projectId;
+
+        return $this;
+    }
+
+    public function getSign(): ?string
+    {
+        return $this->sign;
+    }
+
+    public function setSign(string $sign): self
+    {
+        $this->sign = $sign;
+
+        return $this;
+    }
+
+    public function getPayRetOrderId(): ?string
+    {
+        return $this->payRetOrderId;
+    }
+
+    public function setPayRetOrderId(string $payRetOrderId): self
+    {
+        $this->payRetOrderId = $payRetOrderId;
+
+        return $this;
+    }
+
+    public function getShowJumpUrl(): ?string
+    {
+        return $this->showJumpUrl;
+    }
+
+    public function setShowJumpUrl(string $showJumpUrl): self
+    {
+        $this->showJumpUrl = $showJumpUrl;
+
+        return $this;
+    }
+}

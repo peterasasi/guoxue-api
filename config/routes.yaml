@@ -1,0 +1,7 @@
+admin:
+    path: /admin
+    controller: App\AdminController\IndexController::index
+
+#app_security_code_create:
+#    path: /security_code/create
+#    controller: App\Controller\LuckyController::number

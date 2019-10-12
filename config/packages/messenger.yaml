@@ -1,0 +1,38 @@
+framework:
+    messenger:
+        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
+        failure_transport: failed
+
+        transports:
+             pay_notify:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%/paynotify?queue_name=pay_notify'
+                # default configuration
+                retry_strategy:
+                    max_retries: 6
+                    # milliseconds delay
+                    delay: 8000
+                    #
+                    # causes the delay to be higher before each retry
+                    multiplier: 8
+                    max_delay: 1800000
+            # https://symfony.com/doc/current/messenger.html#transport-configuration
+             email:
+                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%/email?queue_name=high_priority'
+                   # default configuration
+                 retry_strategy:
+                     max_retries: 4
+                     # milliseconds delay
+                     delay: 1600
+                     multiplier: 2
+                     max_delay: 3600000
+             failed:
+                dsn: 'doctrine://default?queue_name=failed'
+                retry_strategy:
+                  max_retries: 1
+            # sync: 'sync://'
+
+        routing:
+            # Route your messages to the transports
+            'App\Message\UserRegisterMsg': email
+            'App\Message\EmailCodeMsg': email
+            'App\Message\PaySuccessMsg': pay_notify

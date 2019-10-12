@@ -1,0 +1,4 @@
+swiftmailer:
+    url: '%env(MAILER_URL)%'
+    # 如果使用message发送邮件 这个要注释调
+#    spool: { type: 'memory' }

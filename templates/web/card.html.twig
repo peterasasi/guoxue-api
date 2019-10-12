@@ -1,0 +1,44 @@
+{# templates/web/card.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}办卡{% endblock %}
+{% block stylesheets %}
+<style type="text/css">
+    .main {
+        width: 100%;
+        padding: 1.2rem;
+    }
+    .banner-item {
+        position: relative;
+        margin-bottom: 1.2rem;
+    }
+    .banner-item .endtime {
+        border: 1px solid #ffffff;
+        border-radius: 2px;
+        position: absolute;
+        color: #FFF;
+        font-weight: bold;
+        padding: 0.4rem 0.5rem;
+        top: 2.2rem;
+        right: 1.4rem;
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <div class="main">
+    {% for vo in banners  %}
+        <div class="banner-item">
+            {% if vo.end_time == 9999999999 %}
+                {% else %}
+                <div class="endtime">截至 {{ vo.end_time|date("Y-m-d") }}</div>
+            {% endif %}
+            <a href="{{ vo.jump_url }}"><img src="{{ vo.img_url }}" alt="image" class="img-fluid" /></a>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+
+{% endblock %}

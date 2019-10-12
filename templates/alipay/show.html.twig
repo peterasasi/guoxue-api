@@ -1,0 +1,34 @@
+{# templates/web/card.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}支付成功{% endblock %}
+{% block stylesheets %}
+    <style type="text/css">
+        .main {
+            width: 100%;
+            padding: 0rem;
+            background: #F3F3F3;
+            height: 640px;
+            height: calc(100vh);
+            text-align: center;
+        }
+
+        .pay-info {
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="main">
+        <div class="pay-info">
+            <div style="font-size: 18px;font-weight: bold;color:red;">交易成功</div>
+            <div>商户订单号:{{ order_no }}</div>
+            <div>平台交易号:{{ out_trade_no }}</div>
+            <div>支付宝交易号:{{ trade_no }}</div>
+            <div>总金额:{{ total_amount }}元</div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+
+{% endblock %}

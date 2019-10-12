@@ -1,0 +1,31 @@
+{# templates/web/card.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}支付平台{% endblock %}
+{% block stylesheets %}
+    <style type="text/css">
+        .main {
+            width: 100%;
+            padding: 0rem;
+            background: #F3F3F3;
+            height: 640px;
+            height: calc(100vh);
+            text-align: center;
+        }
+
+        .pay-info {
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="main">
+        <div class="pay-info">
+            <a href="{{ pay_url }}">点我模拟支付成功</a>
+            <div>模拟支付步骤</div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+
+{% endblock %}
