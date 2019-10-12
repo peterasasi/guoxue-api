@@ -193,11 +193,14 @@ class GxPayController extends AbstractController
             $sign = $request->get('sign', '');
             $this->logger->debug('支付回调信息1' . json_encode($request->request->all()));
 
-            $verifyRet = (new UsdtPay())->cbVerifySign($outOrderId, $orderId, $customerAmount, $customerAmountCny, $sign);
+            $signVerifyOpen = ByEnv::get('SIGN_VERIFY_OPEN');
+            if (!empty($signVerifyOpen) && $signVerifyOpen == 1) {
+                $verifyRet = (new UsdtPay())->cbVerifySign($outOrderId, $orderId, $customerAmount, $customerAmountCny, $sign);
 
-            if (!$verifyRet) {
-                $this->logger->error('[支付回调签名失败]');
-                return 'verify sign fail';
+                if (!$verifyRet) {
+                    $this->logger->error('[支付回调签名失败]');
+                    return 'verify sign fail';
+                }
             }
 
             $gxOrder = $this->gxOrderService->info(['order_no' => $outOrderId]);
