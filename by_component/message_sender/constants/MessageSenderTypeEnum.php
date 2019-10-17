@@ -33,4 +33,9 @@ class MessageSenderTypeEnum
      * 阿里云
      */
     const SMS_Aliyun = "sms_aliyun";
+
+    /**
+     * 赛邮https://www.mysubmail.com/
+     */
+    const SMS_Submail = "sms_submail";
 }

@@ -9,6 +9,7 @@ use by\component\message_sender\impl\AliyunSmsSender;
 use by\component\message_sender\impl\JuheMessageSender;
 use by\component\message_sender\impl\PushUMengMessageSender;
 use by\component\message_sender\impl\QcloudMessageSender;
+use by\component\message_sender\impl\SubmailSmsSender;
 use by\component\message_sender\interfaces\SenderInterface;
 use by\infrastructure\helper\CallResultHelper;
 
@@ -34,6 +35,9 @@ class MessageSenderFacade
                 break;
             case MessageSenderTypeEnum::SMS_Aliyun:
                 self::$sender = new AliyunSmsSender($data);
+                break;
+            case MessageSenderTypeEnum::SMS_Submail:
+                self::$sender = new SubmailSmsSender($data);
                 break;
             default:
                 self::$sender = new AlertMessageSender($data);
