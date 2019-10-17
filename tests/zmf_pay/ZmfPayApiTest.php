@@ -25,7 +25,7 @@ class ZmfPayApiTest extends TestCase
             'appid' => '',
             'appkey' => '',
             'code' => '123456',
-            'content' => '【SUBMAIL】您的短信验证码：4438，请在10分钟内输入。',
+            'content' => '【SUBMAIL】您的短信验证码：#code#，请在10分钟内输入。',
             'mobile' => '12345678900',
         ];
         $ret = (new SubmailSmsSender($data))->send();
