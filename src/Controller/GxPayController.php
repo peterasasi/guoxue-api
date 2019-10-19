@@ -5,6 +5,7 @@ namespace App\Controller;
 
 
 use App\Common\GxGlobalConfig;
+use App\Common\PayWayConst;
 use App\Entity\GxOrder;
 use App\Entity\PlatformWallet;
 use App\Entity\ProfitGraph;
@@ -118,6 +119,7 @@ class GxPayController extends AbstractController
             $gxOrder->setPaidTime(time());
             $gxOrder->setArrivalAmount($gxOrder->getAmount());
             $gxOrder->setRemark($gxOrder->getRemark() . '[模拟订单]');
+            $gxOrder->setPw(PayWayConst::PW_FAKE);
 
             $note = '充值了' . $gxOrder->getAmount() . '元';
             $this->userWalletService->deposit($wallet->getId(), $gxOrder->getAmount() * 100, $note);
@@ -223,6 +225,7 @@ class GxPayController extends AbstractController
                 $gxOrder->setArrivalAmount($customerAmountCny);
                 $gxOrder->setSign($sign);
                 $gxOrder->setPayRetOrderId($orderId);
+                $gxOrder->setPw(PayWayConst::PW001);
 
                 $note = '充值了' . $gxOrder->getAmount() . '元';
                 $this->userWalletService->deposit($wallet->getId(), $gxOrder->getAmount() * 100, $note);

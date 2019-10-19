@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Common\PayWayConst;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -110,6 +111,11 @@ class GxOrder extends BaseEntity
      */
     private $updateTime;
 
+    /**
+     * @ORM\Column(type="string", length=16)
+     */
+    private $pw;
+
     public function __construct()
     {
         parent::__construct();
@@ -124,6 +130,7 @@ class GxOrder extends BaseEntity
         $this->setPayRetOrderId('');
         $this->setSign('');
         $this->setShowJumpUrl('');
+        $this->setPw(PayWayConst::PW000);
     }
 
     public function getId(): ?int
@@ -343,6 +350,18 @@ class GxOrder extends BaseEntity
     public function setUpdateTime(int $updateTime): self
     {
         $this->updateTime = $updateTime;
+
+        return $this;
+    }
+
+    public function getPw(): ?string
+    {
+        return $this->pw;
+    }
+
+    public function setPw(string $pw): self
+    {
+        $this->pw = $pw;
 
         return $this;
     }
