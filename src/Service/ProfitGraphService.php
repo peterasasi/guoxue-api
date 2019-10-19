@@ -25,6 +25,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
     protected $platformWalletService;
     protected $gxOrderService;
     protected $userWalletService;
+    protected $maxIncome;
 
     public function __construct(
         UserWalletServiceInterface $userWalletService,
@@ -68,20 +69,33 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
     {
         if (empty($family)) return [0, 0];
         $family = explode(",", rtrim($family, ','));
-        $fields = ["uid", "vip_level", "active"];
+        $fields = ["uid", "vip_level", "active", "total_income"];
         $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['id' => 'desc'], $fields);
         $v9 = 0;
         $parentVipUid = 0;
+        $v9Income = 0;
+        $parentIncome = 0;
         foreach ($pgList as $vo) {
             if ($vo['active'] === 1) {
                 if ($v9 === 0 && $vo['vip_level'] == 9) {
                     $v9 = $vo['uid'];
+                    $v9Income = $vo['total_income'];
                 }
                 if ($parentVipUid === 0 && $vo['vip_level'] > $curVipLevel) {
                     $parentVipUid = $vo['uid'];
+                    $parentIncome = $vo['total_income'];
                 }
             }
         }
+        if ($v9Income >= $this->maxIncome) {
+            // 如果超过限制的收益金额
+            $v9 = 0;
+        }
+        if ($parentIncome >= $this->maxIncome) {
+            // 如果超过限制的收益金额
+            $parentVipUid = 0;
+        }
+
         return [intval($parentVipUid), intval($v9)];
     }
 
@@ -89,7 +103,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         // $curLevel + 1,  $toLevel 这个区间的vip
         if (empty($family)) return [];
         $family = explode(",", rtrim($family, ','));
-        $fields = ["uid", "vip_level", "active"];
+        $fields = ["uid", "vip_level", "active", "total_income"];
         $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['id' => 'desc'], $fields);
         $parentsUid = [];
 
@@ -98,7 +112,10 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
             foreach ($pgList as $vo) {
                 if ($vo['active'] === 1) {
                     if ($parentsUid[$i - 1 - $curLevel] === 0 && $vo['vip_level'] == $i) {
-                        $parentsUid[$i - 1 - $curLevel] = $vo['uid'];
+                        if ($vo['total_income'] < $this->maxIncome) {
+                            // 如果小于限制的收益金额
+                            $parentsUid[$i - 1 - $curLevel] = $vo['uid'];
+                        }
                     }
                 }
             }
@@ -114,6 +131,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         if (intval($profitGraph->getVipLevel()) !== 0) return CallResultHelper::fail('该用户不是vip0,无法升级到VIP1');
 
         // 给予上级一半的钱
+        $this->maxIncome = $gxGlobalConfig->getMaxIncome();
         // 平台总利润
         $total = $gxGlobalConfig->getPlatformFixedProfit();
         $payFeeWallet = $this->platformWalletService->info(['typeNo' => PlatformWallet::Pay1Fee]);
@@ -182,8 +200,11 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                     $this->getEntityManager()->rollback();
                     return CallResultHelper::fail('订单'.$orderId.'上级VipUid无效');
                 }
+
                 $note = '[VIP佣金]下级用户'.$gxOrder->getUid().'升级VIP1增加佣金' . $money . '元';
                 $this->userWalletService->depositCommission($userWallet->getId(), $money * 100, $note);
+                // 增加利润的收益
+                $this->addIncome($userWallet->getUid(), $money);
             }
             //  获取已激活的vip9 给予200 元
             $money = 200;
@@ -199,6 +220,8 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                 }
                 $note = '[VIP9佣金]下级用户'.$gxOrder->getUid().'升级VIP1增加佣金' . $money . '元';
                 $this->userWalletService->depositCommission($userWallet->getId(), $money * 100, $note);
+                // 增加利润的收益
+                $this->addIncome($userWallet->getUid(), $money);
             }
 
             // 2. 更新用户等级到vip1
@@ -278,6 +301,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                     }
                     $note = '[VIP升级佣金]下级用户' . $gxOrder->getUid() . '升级VIP' . $vipLevel . '增加佣金' . $amount . '元';
                     $this->userWalletService->depositCommission($userWallet->getId(), $amount * 100, $note);
+                    $this->addIncome($userWallet->getUid(), $amount);
                 }
             }
             // 2. 更新用户等级到vip-n
@@ -291,6 +315,15 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         } catch (Exception $exception) {
             $this->getEntityManager()->rollback();
             return CallResultHelper::fail('[GXPAY]处理订单VIP-N' . $orderId . '发生异常' . $exception->getMessage());
+        }
+    }
+
+    protected function addIncome($uid, $income) {
+        $pg = $this->info(['uid' => $uid]);
+        if ($pg instanceof ProfitGraph) {
+            $pg = $this->findById($pg->getId(), LockMode::PESSIMISTIC_WRITE);
+            $pg->setTotalIncome($pg->getTotalIncome() + $income);
+            $this->flush($pg);
         }
     }
 }
