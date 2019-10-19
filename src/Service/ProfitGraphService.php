@@ -35,6 +35,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         $this->platformWalletService = $platformWalletService;
         $this->gxOrderService = $gxOrderService;
         $this->userWalletService = $userWalletService;
+        $this->maxIncome = 5900000;
     }
 
     public function init($uid, $mobile, $inviteUid)
@@ -130,8 +131,6 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         if (!$profitGraph instanceof ProfitGraph) return CallResultHelper::fail('用户信息缺失利润图');
         if (intval($profitGraph->getVipLevel()) !== 0) return CallResultHelper::fail('该用户不是vip0,无法升级到VIP1');
 
-        // 给予上级一半的钱
-        $this->maxIncome = $gxGlobalConfig->getMaxIncome();
         // 平台总利润
         $total = $gxGlobalConfig->getPlatformFixedProfit();
         $payFeeWallet = $this->platformWalletService->info(['typeNo' => PlatformWallet::Pay1Fee]);
