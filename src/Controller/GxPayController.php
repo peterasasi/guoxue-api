@@ -16,6 +16,7 @@ use App\ServiceInterface\ProfitGraphServiceInterface;
 use App\ServiceInterface\UserWalletServiceInterface;
 use by\component\string_extend\helper\StringHelper;
 use by\component\usdt_pay\UsdtPay;
+use by\component\xft_pay\XftPay;
 use by\infrastructure\base\CallResult;
 use by\infrastructure\helper\CallResultHelper;
 use Dbh\SfCoreBundle\Common\ByEnv;
@@ -168,7 +169,14 @@ class GxPayController extends AbstractController
         }
 
         $fakePay = ByEnv::get('USDT_FAKE_PAY');
-        if ($fakePay == 0) {
+        if ($fakePay == 2) {
+            $amount = $gxOrder->getAmount();
+            $ret = (new XftPay())->getPayUrl($gxOrder->getOrderNo(), intval($amount * 100), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId());
+            if ($ret->isFail()) {
+                return $this->render('gxpay/error.html.twig', ['msg' => $ret->getMsg()]);
+            }
+            return new RedirectResponse($ret->getData());
+        } else if ($fakePay == 0) {
             $amount = $gxOrder->getAmount();
             $url = (new UsdtPay())->getPayUrl($gxOrder->getOrderNo(), $amount, 2);
             return new RedirectResponse($url);
