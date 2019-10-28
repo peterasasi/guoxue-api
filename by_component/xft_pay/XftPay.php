@@ -14,6 +14,10 @@ class XftPay
 
     protected $config;
 
+    public function getSuccessStr() {
+        return 'SUCCESS';
+    }
+
     public function __construct()
     {
         $this->config = new XftPayConfig();
@@ -21,6 +25,7 @@ class XftPay
         $this->config->setAppId(ByEnv::get('XFT_PAY_APP_ID'));
         $this->config->setMerchantCode(ByEnv::get('XFT_PAY_M_CODE'));
         $this->config->setKey(ByEnv::get('XFT_PAY_KEY'));
+        $this->config->setNotifyUrl(ByEnv::get('XFT_PAY_NOTIFY_URL'));
     }
 
     /**
@@ -50,6 +55,7 @@ class XftPay
             'amount' => $amount,
             'subject' => $subject,
             'body' => $body,
+            'notify_url' => $this->config->getNotifyUrl(),
             'description' => $description,
             'sign_type' => 'MD5'
         ];

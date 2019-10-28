@@ -20,4 +20,9 @@ class PayWayConst
      */
     const PW001 = 'pw1001';
 
+    /**
+     * 支付通道 1002 - xft
+     */
+    const PW002 = 'pw1002';
+
 }

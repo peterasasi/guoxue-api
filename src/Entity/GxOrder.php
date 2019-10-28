@@ -14,6 +14,8 @@ class GxOrder extends BaseEntity
 
     const Paid = 1;
 
+    const PaidFail = -1;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

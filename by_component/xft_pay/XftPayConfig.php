@@ -10,6 +10,7 @@ class XftPayConfig
     protected $key;
     protected $app_id;
     protected $clientIp;
+    protected $notifyUrl;
 
     /**
      * XftPayConfig constructor.
@@ -23,6 +24,23 @@ class XftPayConfig
         $this->key = $key;
         $this->app_id = $app_id;
         $this->setClientIp('127.0.0.1');
+        $this->setNotifyUrl('');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNotifyUrl()
+    {
+        return $this->notifyUrl;
+    }
+
+    /**
+     * @param mixed $notifyUrl
+     */
+    public function setNotifyUrl($notifyUrl): void
+    {
+        $this->notifyUrl = $notifyUrl;
     }
 
     /**

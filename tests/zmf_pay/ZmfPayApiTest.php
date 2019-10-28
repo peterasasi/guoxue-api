@@ -20,11 +20,11 @@ class ZmfPayApiTest extends TestCase
 //        $url = (new UsdtPay())->getPayUrl('1', '500');
 //        var_dump($url);
 
-        $_SERVER['XFT_PAY_CLIENT_IP'] = '112.16.93.124';
+        $_SERVER['XFT_PAY_CLIENT_IP'] = '18.163.59.49';
         $_SERVER['XFT_PAY_APP_ID'] = '1184302811421081600';
         $_SERVER['XFT_PAY_M_CODE'] = '1522700024933';
         $_SERVER['XFT_PAY_KEY'] = 'FFB53C0BF7B9C67D2B5AFC5EA58C76C3';
-
+        $_SERVER['XFT_PAY_NOTIFY_URL'] = 'http://api.guoxuekong.com/pay/notify/xft';
         $ret = (new XftPay())->getPayUrl('20191026001', 500);
         var_dump($ret);
     }
