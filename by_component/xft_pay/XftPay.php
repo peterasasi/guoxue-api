@@ -68,27 +68,42 @@ class XftPay
         if ($http->success) {
             $content = $http->getBody()->getContents();
             $ret = json_decode($content, JSON_OBJECT_AS_ARRAY);
-            if (array_key_exists('state', $ret)) {
-                $state = $ret['state'];
-                $state_msg = '';
-                if (array_key_exists($state, $this->orderState)) {
-                    $state_msg = $this->orderState[$state];
+            if (array_key_exists('result', $ret) && $ret['result']) {
+                $data = $ret['data'];
+                $message = $ret['message'];
+//                var_dump($data);
+                if (array_key_exists('state', $data)) {
+                    $state = $data['state'];
+                    $state_msg = '';
+                    if (array_key_exists($state, $this->orderState)) {
+                        $state_msg = $this->orderState[$state];
+                    }
+                    $sign_type = $data['sign_type'];
+                    $sign = $data['sign'];
+                    unset($data['sign']);
+//                var_dump($sign);
+                    $localSign = SignTool::sign($data, $this->config);
+//                    var_dump($localSign);
+                    if ($sign != $localSign) {
+                        return CallResultHelper::fail('验证签名失败' . $content);
+                    }
+                    $failure_msg = $data['failure_msg'];
+                    $formatRet = [
+                        'state' => $state,
+                        'state_msg' => $state_msg,
+                        'out_trade_no' => $data['out_trade_no'],
+                        'credential' => $data['credential']
+                    ];
+                    if ($state == '00') {
+                        $credential = $data['credential'];
+                        if (array_key_exists('h5_url', $credential)) {
+                            return CallResultHelper::success($credential['h5_url']);
+                        }
+                    }
+                    return CallResultHelper::fail($message.'-'.$failure_msg, $ret);
+                } else {
+                    return CallResultHelper::fail('返回参数错误' . $content);
                 }
-                $sign_type = $ret['sign_type'];
-                $sign = $ret['sign'];
-                var_dump($sign);
-//                $localSign = SignTool::sign($ret, $this->config);
-//                if ($sign != $localSign) {
-//                    return CallResultHelper::fail('验证签名失败' . $content);
-//                }
-                $formatRet = [
-                    'state' => $state,
-                    'state_msg' => $state_msg,
-                    'out_trade_no' => $ret['out_trade_no'],
-                    'credential' => $ret['credential']
-                ];
-
-                return CallResultHelper::success($formatRet);
             } else {
                 return CallResultHelper::fail('返回参数错误' . $content);
             }
