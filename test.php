@@ -1,7 +1,7 @@
 <?php
-list($parent, $vip9) = array(1, 2);
-var_dump($parent);
-var_dump($vip9);
+
+$str = http_build_query(['a' => 'b', 'c'=>'d']);
+var_dump($str);
 // 股票交易手续费
 //1 - 6
 //1-2 => 给2
