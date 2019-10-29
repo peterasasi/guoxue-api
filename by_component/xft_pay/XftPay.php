@@ -96,6 +96,7 @@ class XftPay
                     ];
                     if ($state == '09') {
                         $credential = $data['credential'];
+                        if (is_string($credential)) $credential = json_decode($credential, JSON_OBJECT_AS_ARRAY);
                         if (array_key_exists('h5_url', $credential)) {
                             return CallResultHelper::success($credential['h5_url']);
                         }

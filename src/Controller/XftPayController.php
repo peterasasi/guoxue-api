@@ -14,6 +14,7 @@ use App\ServiceInterface\ProfitGraphServiceInterface;
 use App\ServiceInterface\UserWalletServiceInterface;
 use by\component\string_extend\helper\StringHelper;
 use by\component\usdt_pay\UsdtPay;
+use by\component\xft_pay\NotifyParams;
 use by\component\xft_pay\SignTool;
 use by\component\xft_pay\XftPay;
 use by\infrastructure\base\CallResult;
@@ -81,37 +82,37 @@ class XftPayController extends AbstractController
 //payer_id	否	String	付款人标识
 //sign_type	是	String	签名类型
 //sign	是	String	签名值
+            $rawData = $request->getContent();
+            if (is_string($rawData)) $rawData = json_decode($rawData, JSON_OBJECT_AS_ARRAY);
+            if (empty($rawData)) return 'error notify data';
 
-            $out_trade_no = $request->get('out_trade_no', '');
-            $third_trade_no = $request->get('third_trade_no', '');
-            $amount = $request->get('amount', 0);
-            $sign = $request->get('sign', '');
-            $signType = $request->get('sign_type', '');
-            $client_ip = $request->get('client_ip', '');
-            $created = $request->get('created', '');
-            $state = $request->get('state', '');
+            try {
+                $np = new NotifyParams($rawData);
+            } catch (Exception $exception) {
+                return 'notify params invalid';
+            }
 
-            $this->logger->debug('支付回调信息2' . json_encode($request->request->all()));
             $payInstance = new XftPay();
             $signVerifyOpen = ByEnv::get('SIGN_VERIFY_OPEN');
             if (!empty($signVerifyOpen) && $signVerifyOpen == 1) {
-                $all = $request->request->all();
+                $all = $rawData;
                 unset($all['sign']);
                 $localSign = SignTool::sign($all, $payInstance->getConfig());
-                if (!($localSign === $sign)) {
+                if (!($localSign === $np->getSign())) {
                     $this->logger->error('[支付回调签名失败]');
                     return 'verify sign fail';
                 }
             }
 
-            $gxOrder = $this->gxOrderService->info(['order_no' => $out_trade_no]);
+            $gxOrder = $this->gxOrderService->info(['order_no' => $np->getOutTradeNo()]);
             if (!$gxOrder instanceof GxOrder) {
                 $this->logger->error('[订单号不存在]');
                 return 'out_order_id not exists';
             }
-            if ($state != '00') {
+
+            if ($np->getState() != '00') {
                 // 订单未支付成功 记录订单状态到异常
-                $gxOrder->setExceptionMsg($gxOrder->getExceptionMsg().'[state]'.$state);
+                $gxOrder->setExceptionMsg($gxOrder->getExceptionMsg() . '[state]' . $np->getState());
                 $this->gxOrderService->flush($gxOrder);
                 return 'order failed';
             }
@@ -126,13 +127,11 @@ class XftPayController extends AbstractController
             try {
                 $this->gxOrderService->findById($gxOrder->getId(), LockMode::PESSIMISTIC_READ);
 
-                $gxOrder->setExceptionMsg($gxOrder->getExceptionMsg() . '');
-
                 $gxOrder->setPayStatus(GxOrder::Paid);
                 $gxOrder->setPaidTime(time());
-                $gxOrder->setArrivalAmount(StringHelper::numberFormat($amount / 100, 2));
-                $gxOrder->setSign($sign);
-                $gxOrder->setPayRetOrderId($third_trade_no);
+                $gxOrder->setArrivalAmount(StringHelper::numberFormat($np->getAmount() / 100, 2));
+                $gxOrder->setSign($np->getSign());
+                $gxOrder->setPayRetOrderId($np->getThirdTradeNo());
                 $gxOrder->setPw(PayWayConst::PW002);
 
                 $note = '充值了' . $gxOrder->getAmount() . '元';
