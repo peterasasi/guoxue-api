@@ -6,19 +6,17 @@ namespace App\Controller;
 
 use App\Common\GxGlobalConfig;
 use App\Common\PayWayConst;
+use App\Entity\Config;
 use App\Entity\GxOrder;
-use App\Entity\PlatformWallet;
-use App\Entity\ProfitGraph;
 use App\Entity\UserWallet;
+use App\ServiceInterface\ConfigServiceInterface;
 use App\ServiceInterface\GxOrderServiceInterface;
 use App\ServiceInterface\PlatformWalletServiceInterface;
 use App\ServiceInterface\ProfitGraphServiceInterface;
 use App\ServiceInterface\UserWalletServiceInterface;
-use by\component\string_extend\helper\StringHelper;
 use by\component\usdt_pay\UsdtPay;
 use by\component\xft_pay\XftPay;
 use by\infrastructure\base\CallResult;
-use by\infrastructure\helper\CallResultHelper;
 use Dbh\SfCoreBundle\Common\ByEnv;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\OptimisticLockException;
@@ -39,14 +37,17 @@ class GxPayController extends AbstractController
     protected $profitGraphService;
     protected $platformWalletService;
     protected $userWalletService;
+    protected $configService;
 
     public function __construct(
+        ConfigServiceInterface $configService,
         UserWalletServiceInterface $userWalletService,
         PlatformWalletServiceInterface $platformWalletService,
         ProfitGraphServiceInterface $profitGraphService,
         GxGlobalConfig $gxGlobalConfig,
         GxOrderServiceInterface $gxOrderService, LoggerInterface $logger)
     {
+        $this->configService = $configService;
         $this->userWalletService = $userWalletService;
         $this->platformWalletService = $platformWalletService;
         $this->logger = $logger;
@@ -55,6 +56,13 @@ class GxPayController extends AbstractController
         $this->gxOrderService = $gxOrderService;
     }
 
+    protected function getPayWay($projectId) {
+        $cfg = $this->configService->info(['name' => 'payway', 'project_id' => $projectId]);
+        if ($cfg instanceof Config) {
+            return intval($cfg->getValue());
+        }
+        return -1;
+    }
 
     /**
      * @Route("/fake-upgradev1-{orderId}", name="pay1_fake_upgrade_v1", methods={"GET","POST"})
@@ -168,7 +176,8 @@ class GxPayController extends AbstractController
             return $this->render('gxpay/error.html.twig', ['msg' => '订单号非法']);
         }
 
-        $fakePay = ByEnv::get('USDT_FAKE_PAY');
+        $fakePay = $this->getPayWay($gxOrder->getProjectId());
+
         if ($fakePay == 2) {
             $amount = $gxOrder->getAmount();
             $ret = (new XftPay())->getPayUrl($gxOrder->getOrderNo(), intval($amount * 100), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId());
@@ -180,9 +189,11 @@ class GxPayController extends AbstractController
             $amount = $gxOrder->getAmount();
             $url = (new UsdtPay())->getPayUrl($gxOrder->getOrderNo(), $amount, 2);
             return new RedirectResponse($url);
-        } else {
+        } else if ($fakePay == 1) {
             $payUrl = $request->getSchemeAndHttpHost() . $this->generateUrl('pay1_fake', ['orderNo' => $orderNo]);
             return $this->render('gxpay/fake.html.twig', ['pay_url' => $payUrl]);
+        } else {
+            return $this->render('gxpay/error.html.twig', ['msg' => '支付通道未配置']);
         }
     }
 
