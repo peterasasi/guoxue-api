@@ -21,9 +21,9 @@ class ZmfPayApiTest extends TestCase
 //        var_dump($url);
 
         $_SERVER['XFT_PAY_CLIENT_IP'] = '18.163.59.49';
-        $_SERVER['XFT_PAY_APP_ID'] = '1184302811421081600';
-        $_SERVER['XFT_PAY_M_CODE'] = '1522700024933';
-        $_SERVER['XFT_PAY_KEY'] = 'FFB53C0BF7B9C67D2B5AFC5EA58C76C3';
+        $_SERVER['XFT_PAY_APP_ID'] = '1187689325496631296';
+        $_SERVER['XFT_PAY_M_CODE'] = '1330100026480';
+        $_SERVER['XFT_PAY_KEY'] = '8FC5BAFD931D1630A86F8CBE2BF09A1B';
         $_SERVER['XFT_PAY_NOTIFY_URL'] = 'http://api.xxx.com/pay/notify/xft';
         $ret = (new XftPay())->getPayUrl(date('YmdH').rand(10000000, 99999999), 500);
         var_dump($ret);

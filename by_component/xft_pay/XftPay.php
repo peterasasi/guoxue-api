@@ -94,7 +94,7 @@ class XftPay
                         'out_trade_no' => $data['out_trade_no'],
                         'credential' => $data['credential']
                     ];
-                    if ($state == '00') {
+                    if ($state == '09') {
                         $credential = $data['credential'];
                         if (array_key_exists('h5_url', $credential)) {
                             return CallResultHelper::success($credential['h5_url']);
