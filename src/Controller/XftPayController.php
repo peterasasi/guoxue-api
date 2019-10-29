@@ -131,7 +131,11 @@ class XftPayController extends AbstractController
             $this->gxOrderService->getEntityManager()->beginTransaction();
             try {
                 $this->gxOrderService->findById($gxOrder->getId(), LockMode::PESSIMISTIC_READ);
-
+                if ($gxOrder->getPayStatus() == GxOrder::Paid) {
+                    $this->gxOrderService->getEntityManager()->rollback();
+                    $this->logger->error('[支付回调] 订单已处理' . $gxOrder->getOrderNo());
+                    return 'already processed';
+                }
                 $gxOrder->setPayStatus(GxOrder::Paid);
                 $gxOrder->setPaidTime(time());
                 $gxOrder->setArrivalAmount(StringHelper::numberFormat($np->getAmount() / 100, 2));
