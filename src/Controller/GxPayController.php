@@ -87,6 +87,7 @@ class GxPayController extends AbstractController
                 $payWay = intval($cfg->getValue());
                 $item->set($payWay);
                 $item->expiresAfter(CacheKeys::getExpireTime(CacheKeys::GxPayWay));
+                $this->cacheItemPool->save($item);
             }
         }
         return $payWay;
@@ -204,6 +205,7 @@ class GxPayController extends AbstractController
             $cfg = $list[$r];
             $item->set(json_encode($cfg));
             $item->expiresAfter(CacheKeys::getExpireTime(CacheKeys::GxXftPayConfig));
+            $this->cacheItemPool->save($item);
         }
 
         $xftPay = new XftPay();
