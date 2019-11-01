@@ -81,6 +81,8 @@ class DemoCommand extends Command
         $xftPay->getConfig()->setAppId($list[$r]['app_id']);
         $xftPay->getConfig()->setMerchantCode($list[$r]['code']);
         $xftPay->getConfig()->setKey($list[$r]['md5key']);
+        $xftPay->getConfig()->setNotifyUrl($list[$r]['notify_url']);
+        $xftPay->getConfig()->setClientIp($list[$r]['client_ip']);
         var_dump($xftPay->getConfig());
 //        $msg = new PaySuccessMsg();
 //        $msg->setTotalAmount(100);
