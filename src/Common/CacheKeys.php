@@ -21,10 +21,16 @@ class CacheKeys
 
     const AppAlipayConfig = 'app_ali_pay_config';
 
+    const GxPayWay = 'gx_pay_way';
+
+    const GxXftPayConfig = 'gx_xft_pay_config';
+
     public static $ExpireTimes = [
         CacheKeys::SmsConfig => 3600,
         CacheKeys::AppCombIndex => 300,
-        CacheKeys::AppAlipayConfig => 24 * 3600
+        CacheKeys::AppAlipayConfig => 24 * 3600,
+        CacheKeys::GxPayWay => 3600,
+        CacheKeys::GxXftPayConfig => 900
     ];
 
     public static function getExpireTime($key)

@@ -4,6 +4,7 @@
 namespace App\Controller;
 
 
+use App\Common\CacheKeys;
 use App\Common\GxGlobalConfig;
 use App\Common\PayWayConst;
 use App\Entity\Config;
@@ -20,13 +21,16 @@ use by\component\usdt_pay\UsdtPay;
 use by\component\xft_pay\XftPay;
 use by\infrastructure\base\CallResult;
 use by\infrastructure\constants\StatusEnum;
+use Dbh\SfCoreBundle\Common\ByCacheKeys;
 use Dbh\SfCoreBundle\Common\ByEnv;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -43,8 +47,10 @@ class GxPayController extends AbstractController
     protected $configService;
     protected $xftMerchantService;
     protected $xftCfgId;
+    protected $cacheItemPool;
 
     public function __construct(
+        CacheItemPoolInterface $cacheItemPool,
         XftMerchantServiceInterface $xftMerchantService,
         ConfigServiceInterface $configService,
         UserWalletServiceInterface $userWalletService,
@@ -54,6 +60,7 @@ class GxPayController extends AbstractController
         GxOrderServiceInterface $gxOrderService, LoggerInterface $logger)
     {
         $this->xftCfgId = 0;
+        $this->cacheItemPool = $cacheItemPool;
         $this->xftMerchantService = $xftMerchantService;
         $this->configService = $configService;
         $this->userWalletService = $userWalletService;
@@ -64,12 +71,25 @@ class GxPayController extends AbstractController
         $this->gxOrderService = $gxOrderService;
     }
 
+    /**
+     * @param $projectId
+     * @return int
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     protected function getPayWay($projectId) {
-        $cfg = $this->configService->info(['name' => 'payway', 'project_id' => $projectId]);
-        if ($cfg instanceof Config) {
-            return intval($cfg->getValue());
+        $item = $this->cacheItemPool->getItem(CacheKeys::GxPayWay);
+        if  ($item->isHit()) {
+            $payWay = intval($item->get());
+        } else {
+            $payWay = -1;
+            $cfg = $this->configService->info(['name' => 'payway', 'project_id' => $projectId]);
+            if ($cfg instanceof Config) {
+                $payWay = intval($cfg->getValue());
+                $item->set($payWay);
+                $item->expiresAfter(CacheKeys::getExpireTime(CacheKeys::GxPayWay));
+            }
         }
-        return -1;
+        return $payWay;
     }
 
     /**
@@ -170,19 +190,29 @@ class GxPayController extends AbstractController
     }
 
     protected function getXftConfig() {
-        $list = $this->xftMerchantService->queryAllBy(['enable' => StatusEnum::ENABLE], ['id' => 'desc']);
-        if (!is_array($list) || count($list) == 0) {
-            return null;
+
+        $item = $this->cacheItemPool->getItem(CacheKeys::GxXftPayConfig);
+        if  ($item->isHit()) {
+            $cfg = @json_decode($item->get(), JSON_OBJECT_AS_ARRAY);
+        } else {
+            $list = $this->xftMerchantService->queryAllBy(['enable' => StatusEnum::ENABLE], ['id' => 'desc']);
+            if (!is_array($list) || count($list) == 0) {
+                return null;
+            }
+            $validCnt = count($list);
+            $r = rand(0, $validCnt - 1);
+            $cfg = $list[$r];
+            $item->set(json_encode($cfg));
+            $item->expiresAfter(CacheKeys::getExpireTime(CacheKeys::GxXftPayConfig));
         }
+
         $xftPay = new XftPay();
-        $validCnt = count($list);
-        $r = rand(0, $validCnt - 1);
-        $xftPay->getConfig()->setAppId($list[$r]['app_id']);
-        $xftPay->getConfig()->setMerchantCode($list[$r]['code']);
-        $xftPay->getConfig()->setKey($list[$r]['md5key']);
-        $xftPay->getConfig()->setNotifyUrl($list[$r]['notify_url']);
-        $xftPay->getConfig()->setClientIp($list[$r]['client_ip']);
-        $this->xftCfgId = $list[$r]['id'];
+        $xftPay->getConfig()->setAppId($cfg['app_id']);
+        $xftPay->getConfig()->setMerchantCode($cfg['code']);
+        $xftPay->getConfig()->setKey($cfg['md5key']);
+        $xftPay->getConfig()->setNotifyUrl($cfg['notify_url']);
+        $xftPay->getConfig()->setClientIp($cfg['client_ip']);
+        $this->xftCfgId = $cfg['id'];
 
         return $xftPay;
     }
@@ -193,6 +223,7 @@ class GxPayController extends AbstractController
      * @param Request $request
      * @param $orderNo
      * @return Response
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function pay(Request $request, $orderNo)
     {
