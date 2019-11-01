@@ -36,6 +36,16 @@ class XftMerchant
      */
     private $enable;
 
+    /**
+     * @ORM\Column(type="string", length=21)
+     */
+    private $clientIp;
+
+    /**
+     * @ORM\Column(type="string", length=256)
+     */
+    private $notifyUrl;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -85,6 +95,30 @@ class XftMerchant
     public function setEnable(int $enable): self
     {
         $this->enable = $enable;
+
+        return $this;
+    }
+
+    public function getClientIp(): ?string
+    {
+        return $this->clientIp;
+    }
+
+    public function setClientIp(string $clientIp): self
+    {
+        $this->clientIp = $clientIp;
+
+        return $this;
+    }
+
+    public function getNotifyUrl(): ?string
+    {
+        return $this->notifyUrl;
+    }
+
+    public function setNotifyUrl(string $notifyUrl): self
+    {
+        $this->notifyUrl = $notifyUrl;
 
         return $this;
     }
