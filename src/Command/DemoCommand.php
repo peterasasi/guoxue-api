@@ -13,6 +13,9 @@ use App\Helper\DesHelper;
 use App\Message\PaySuccessMsg;
 use App\ServiceInterface\PayOrderServiceInterface;
 use App\ServiceInterface\UserWalletServiceInterface;
+use App\ServiceInterface\XftMerchantServiceInterface;
+use by\component\xft_pay\XftPay;
+use by\infrastructure\constants\StatusEnum;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,8 +32,10 @@ class DemoCommand extends Command
     protected $eventDispatcher;
     protected $messageBus;
     protected $payOrderService;
+    protected $xftMerchantService;
 
     public function __construct(
+        XftMerchantServiceInterface $xftMerchantService,
         PayOrderServiceInterface $payOrderService,
         MessageBusInterface $messageBus,
         EventDispatcherInterface $eventDispatcher,
@@ -38,6 +43,7 @@ class DemoCommand extends Command
         \Swift_Mailer $swift_Mailer, string $name = null)
     {
         parent::__construct($name);
+        $this->xftMerchantService = $xftMerchantService;
         $this->mailer = $swift_Mailer;
         $this->walletService = $walletService;
         $this->eventDispatcher = $eventDispatcher;
@@ -61,10 +67,21 @@ class DemoCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $payOrder = $this->payOrderService->info(['out_order_no' => '2339', 'client_id' => 'by04esfH0fdc6Y']);
-        $ret = $this->payOrderService->notify($payOrder);
-        var_dump($ret);
-
+//        $payOrder = $this->payOrderService->info(['out_order_no' => '2339', 'client_id' => 'by04esfH0fdc6Y']);
+//        $ret = $this->payOrderService->notify($payOrder);
+//        var_dump($ret);
+        $list = $this->xftMerchantService->queryAllBy(['enable' => StatusEnum::ENABLE], ['id' => 'desc']);
+        if (!is_array($list) || count($list) == 0) {
+            return null;
+        }
+        var_dump($list);
+        $xftPay = new XftPay();
+        $validCnt = count($list);
+        $r = rand(0, $validCnt);
+        $xftPay->getConfig()->setAppId($list[$r]['app_id']);
+        $xftPay->getConfig()->setMerchantCode($list[$r]['code']);
+        $xftPay->getConfig()->setKey($list[$r]['md5_key']);
+        var_dump($xftPay->getConfig());
 //        $msg = new PaySuccessMsg();
 //        $msg->setTotalAmount(100);
 //        $msg->setOutOrderNo('2336');

@@ -21,11 +21,13 @@ class ZmfPayApiTest extends TestCase
 //        var_dump($url);
 
         $_SERVER['XFT_PAY_CLIENT_IP'] = '18.163.59.49';
-        $_SERVER['XFT_PAY_APP_ID'] = '1187689325496631296';
-        $_SERVER['XFT_PAY_M_CODE'] = '1330100026480';
-        $_SERVER['XFT_PAY_KEY'] = '8FC5BAFD931D1630A86F8CBE2BF09A1B';
-        $_SERVER['XFT_PAY_NOTIFY_URL'] = 'http://api.sunsunxiaoli.com/notify.php';
-        $ret = (new XftPay())->getPayUrl(date('YmdH').rand(10000000, 99999999), 200);
+        $_SERVER['XFT_PAY_APP_ID'] = '';
+        $_SERVER['XFT_PAY_NOTIFY_URL'] = 'http://api.guoxuekong.com/notify.php';
+        $xftPay = new XftPay();
+        $xftPay->getConfig()->setAppId('1189816897244233728');
+        $xftPay->getConfig()->setKey('17A746BF7DEE88BBD8EC7376EAB00E9E');
+        $xftPay->getConfig()->setMerchantCode('1330100028739');
+        $ret = $xftPay->getPayUrl(date('YmdH').rand(10000000, 99999999), 200);
         var_dump($ret);
     }
 
