@@ -29,7 +29,7 @@ class XftMerchant
     /**
      * @ORM\Column(type="string", length=48)
      */
-    private $md5Key;
+    private $md5key;
 
     /**
      * @ORM\Column(type="smallint")
@@ -65,14 +65,14 @@ class XftMerchant
         return $this;
     }
 
-    public function getMd5Key(): ?string
+    public function getMd5key(): ?string
     {
-        return $this->md5Key;
+        return $this->md5key;
     }
 
-    public function setMd5Key(string $md5Key): self
+    public function setMd5key(string $md5key): self
     {
-        $this->md5Key = $md5Key;
+        $this->md5key = $md5key;
 
         return $this;
     }
