@@ -25,7 +25,6 @@ use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
-use http\Exception\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -43,6 +42,7 @@ class GxPayController extends AbstractController
     protected $userWalletService;
     protected $configService;
     protected $xftMerchantService;
+    protected $xftCfgId;
 
     public function __construct(
         XftMerchantServiceInterface $xftMerchantService,
@@ -53,6 +53,7 @@ class GxPayController extends AbstractController
         GxGlobalConfig $gxGlobalConfig,
         GxOrderServiceInterface $gxOrderService, LoggerInterface $logger)
     {
+        $this->xftCfgId = 0;
         $this->xftMerchantService = $xftMerchantService;
         $this->configService = $configService;
         $this->userWalletService = $userWalletService;
@@ -181,6 +182,8 @@ class GxPayController extends AbstractController
         $xftPay->getConfig()->setKey($list[$r]['md5key']);
         $xftPay->getConfig()->setNotifyUrl($list[$r]['notify_url']);
         $xftPay->getConfig()->setClientIp($list[$r]['client_ip']);
+        $this->xftCfgId = $list[$r]['id'];
+
         return $xftPay;
     }
 
@@ -209,8 +212,10 @@ class GxPayController extends AbstractController
             }
             $ret = $xftPay->getPayUrl($gxOrder->getOrderNo(), intval($amount * 100), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId());
             if ($ret->isFail()) {
+                $this->xftMerchantService->incFailCnt($this->xftCfgId);
                 return $this->render('gxpay/error.html.twig', ['msg' => $ret->getMsg()]);
             }
+            $this->xftMerchantService->incSucCnt($this->xftCfgId);
             return new RedirectResponse($ret->getData());
         } else if ($fakePay == 0) {
             $amount = $gxOrder->getAmount();

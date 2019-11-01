@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Table(name="xft_merchant", uniqueConstraints={@ORM\UniqueConstraint(name="uniq_app_id", columns={"app_id"})})
  * @ORM\Entity(repositoryClass="App\Repository\XftMerchantRepository")
  */
 class XftMerchant
@@ -45,6 +46,22 @@ class XftMerchant
      * @ORM\Column(type="string", length=256)
      */
     private $notifyUrl;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $failCnt;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $sucCount;
+
+    public function __construct()
+    {
+        $this->setFailCnt(0);
+        $this->setSucCount(0);
+    }
 
     public function getId(): ?int
     {
@@ -119,6 +136,30 @@ class XftMerchant
     public function setNotifyUrl(string $notifyUrl): self
     {
         $this->notifyUrl = $notifyUrl;
+
+        return $this;
+    }
+
+    public function getFailCnt(): ?int
+    {
+        return $this->failCnt;
+    }
+
+    public function setFailCnt(int $failCnt): self
+    {
+        $this->failCnt = $failCnt;
+
+        return $this;
+    }
+
+    public function getSucCount(): ?int
+    {
+        return $this->sucCount;
+    }
+
+    public function setSucCount(int $sucCount): self
+    {
+        $this->sucCount = $sucCount;
 
         return $this;
     }
