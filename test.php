@@ -1,6 +1,9 @@
 <?php
 
-var_dump(rand(0, 2));
+$keyArr = ['a', 'b'];
+foreach ($keyArr as $key) {
+    var_dump($key);
+}
 
 //$str = http_build_query(['a' => 'b', 'c'=>'d']);
 //var_dump($str);

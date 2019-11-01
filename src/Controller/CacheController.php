@@ -32,6 +32,20 @@ class CacheController extends AbstractController
 
     /**
      *
+     * @Route("/cache/gx_clear", name="Cache_gx_clear")
+     * @return \Psr\Cache\CacheItemInterface|string
+     * @throws InvalidArgumentExceptionAlias
+     */
+    public function clearGx() {
+        $keyArr = [CacheKeys::GxXftPayConfig, CacheKeys::GxPayWay];
+        foreach ($keyArr as $key) {
+            $this->cacheItemPool->deleteItem($key);
+        }
+        return '';
+    }
+
+    /**
+     *
      * @Route("/cache/clear/{key}", name="Cache_clear")
      * @param $key
      * @return \Psr\Cache\CacheItemInterface|string
