@@ -178,7 +178,7 @@ class GxPayController extends AbstractController
         $r = rand(0, $validCnt);
         $xftPay->getConfig()->setAppId($list[$r]['app_id']);
         $xftPay->getConfig()->setMerchantCode($list[$r]['code']);
-        $xftPay->getConfig()->setKey($list[$r]['md5_key']);
+        $xftPay->getConfig()->setKey($list[$r]['md5key']);
         return $xftPay;
     }
 
