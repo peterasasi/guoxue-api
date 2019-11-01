@@ -22,9 +22,9 @@ class ZmfPayApiTest extends TestCase
 
         $_SERVER['XFT_PAY_CLIENT_IP'] = '18.163.59.49';
         $_SERVER['XFT_PAY_APP_ID'] = '';
-        $_SERVER['XFT_PAY_NOTIFY_URL'] = 'http://api.guoxuekong.com/notify.php';
+        $_SERVER['XFT_PAY_NOTIFY_URL'] = '';
         $xftPay = new XftPay();
-        $xftPay->getConfig()->setAppId('1189816897244233728');
+        $xftPay->getConfig()->setAppId('');
         $xftPay->getConfig()->setKey('17A746BF7DEE88BBD8EC7376EAB00E9E');
         $xftPay->getConfig()->setMerchantCode('1330100028739');
         $ret = $xftPay->getPayUrl(date('YmdH').rand(10000000, 99999999), 200);
