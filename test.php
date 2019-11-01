@@ -1,7 +1,9 @@
 <?php
 
-$str = http_build_query(['a' => 'b', 'c'=>'d']);
-var_dump($str);
+var_dump(rand(0, 2));
+
+//$str = http_build_query(['a' => 'b', 'c'=>'d']);
+//var_dump($str);
 // 股票交易手续费
 //1 - 6
 //1-2 => 给2

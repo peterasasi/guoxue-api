@@ -22,9 +22,9 @@ class XftPay
     {
         $this->config = new XftPayConfig();
         $this->config->setClientIp(ByEnv::get('XFT_PAY_CLIENT_IP'));
-        $this->config->setAppId(ByEnv::get('XFT_PAY_APP_ID'));
-        $this->config->setMerchantCode(ByEnv::get('XFT_PAY_M_CODE'));
-        $this->config->setKey(ByEnv::get('XFT_PAY_KEY'));
+//        $this->config->setAppId(ByEnv::get('XFT_PAY_APP_ID'));
+//        $this->config->setMerchantCode(ByEnv::get('XFT_PAY_M_CODE'));
+//        $this->config->setKey(ByEnv::get('XFT_PAY_KEY'));
         $this->config->setNotifyUrl(ByEnv::get('XFT_PAY_NOTIFY_URL'));
     }
 

@@ -9,19 +9,23 @@ use App\Common\PayWayConst;
 use App\Entity\Config;
 use App\Entity\GxOrder;
 use App\Entity\UserWallet;
+use App\Entity\XftMerchant;
 use App\ServiceInterface\ConfigServiceInterface;
 use App\ServiceInterface\GxOrderServiceInterface;
 use App\ServiceInterface\PlatformWalletServiceInterface;
 use App\ServiceInterface\ProfitGraphServiceInterface;
 use App\ServiceInterface\UserWalletServiceInterface;
+use App\ServiceInterface\XftMerchantServiceInterface;
 use by\component\usdt_pay\UsdtPay;
 use by\component\xft_pay\XftPay;
 use by\infrastructure\base\CallResult;
+use by\infrastructure\constants\StatusEnum;
 use Dbh\SfCoreBundle\Common\ByEnv;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use http\Exception\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -38,8 +42,10 @@ class GxPayController extends AbstractController
     protected $platformWalletService;
     protected $userWalletService;
     protected $configService;
+    protected $xftMerchantService;
 
     public function __construct(
+        XftMerchantServiceInterface $xftMerchantService,
         ConfigServiceInterface $configService,
         UserWalletServiceInterface $userWalletService,
         PlatformWalletServiceInterface $platformWalletService,
@@ -47,6 +53,7 @@ class GxPayController extends AbstractController
         GxGlobalConfig $gxGlobalConfig,
         GxOrderServiceInterface $gxOrderService, LoggerInterface $logger)
     {
+        $this->xftMerchantService = $xftMerchantService;
         $this->configService = $configService;
         $this->userWalletService = $userWalletService;
         $this->platformWalletService = $platformWalletService;
@@ -161,6 +168,20 @@ class GxPayController extends AbstractController
         return $this->render('gxpay/show.html.twig', ['url' => ByEnv::get('H5_ENTRY'), 'total_amount' => '', 'order_no' => '']);
     }
 
+    protected function getXftConfig() {
+        $list = $this->xftMerchantService->queryAllBy(['enable' => StatusEnum::ENABLE], ['id' => 'desc']);
+        if (!is_array($list) || count($list) == 0) {
+            return null;
+        }
+        $xftPay = new XftPay();
+        $validCnt = count($list);
+        $r = rand(0, $validCnt);
+        $xftPay->getConfig()->setAppId($list[$r]['app_id']);
+        $xftPay->getConfig()->setMerchantCode($list[$r]['code']);
+        $xftPay->getConfig()->setKey($list[$r]['md5_key']);
+        return $xftPay;
+    }
+
     /**
      * 支付方式1 - 发起支付
      * @Route("/pay1/{orderNo}", name="pay1_start", methods={"GET","POST"})
@@ -180,7 +201,11 @@ class GxPayController extends AbstractController
 
         if ($fakePay == 2) {
             $amount = $gxOrder->getAmount();
-            $ret = (new XftPay())->getPayUrl($gxOrder->getOrderNo(), intval($amount * 100), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId());
+            $xftPay = $this->getXftConfig();
+            if (is_null($xftPay)) {
+                return $this->render('gxpay/error.html.twig', ['msg' => '支付通道未配置']);
+            }
+            $ret = $xftPay->getPayUrl($gxOrder->getOrderNo(), intval($amount * 100), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId());
             if ($ret->isFail()) {
                 return $this->render('gxpay/error.html.twig', ['msg' => $ret->getMsg()]);
             }
