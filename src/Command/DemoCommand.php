@@ -77,7 +77,7 @@ class DemoCommand extends Command
         var_dump($list);
         $xftPay = new XftPay();
         $validCnt = count($list);
-        $r = rand(0, $validCnt);
+        $r = rand(0, $validCnt-1);
         $xftPay->getConfig()->setAppId($list[$r]['app_id']);
         $xftPay->getConfig()->setMerchantCode($list[$r]['code']);
         $xftPay->getConfig()->setKey($list[$r]['md5key']);
