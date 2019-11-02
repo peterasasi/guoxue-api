@@ -27,6 +27,8 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
     protected $userWalletService;
     protected $maxIncome;
 
+    const MaxVip = 10;
+
     public function __construct(
         UserWalletServiceInterface $userWalletService,
         GxOrderServiceInterface $gxOrderService, PlatformWalletServiceInterface $platformWalletService, ProfitGraphRepository $repository)
@@ -72,15 +74,15 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         $family = explode(",", rtrim($family, ','));
         $fields = ["uid", "vip_level", "active", "total_income"];
         $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['id' => 'desc'], $fields);
-        $v9 = 0;
+        $vMax = 0;
         $parentVipUid = 0;
-        $v9Income = 0;
+        $vMaxIncome = 0;
         $parentIncome = 0;
         foreach ($pgList as $vo) {
             if ($vo['active'] === 1) {
-                if ($v9 === 0 && $vo['vip_level'] == 9) {
-                    $v9 = $vo['uid'];
-                    $v9Income = $vo['total_income'];
+                if ($vMax === 0 && $vo['vip_level'] == self::MaxVip) {
+                    $vMax = $vo['uid'];
+                    $vMaxIncome = $vo['total_income'];
                 }
                 if ($parentVipUid === 0 && $vo['vip_level'] > $curVipLevel) {
                     $parentVipUid = $vo['uid'];
@@ -88,16 +90,16 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                 }
             }
         }
-        if ($v9Income >= $this->maxIncome) {
+        if ($vMaxIncome >= $this->maxIncome) {
             // 如果超过限制的收益金额
-            $v9 = 0;
+            $vMax = 0;
         }
         if ($parentIncome >= $this->maxIncome) {
             // 如果超过限制的收益金额
             $parentVipUid = 0;
         }
 
-        return [intval($parentVipUid), intval($v9)];
+        return [intval($parentVipUid), intval($vMax)];
     }
 
     public function getParentsUid($curLevel, $toLevel, $family) {
@@ -144,7 +146,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         $otherWallets = $this->platformWalletService->queryAllBy(['profit_ratio' => ['gt', 0]]);
 
         // 获取上级vipUid 和 vip9的Uid
-        list($parentVipUid, $vip9Uid) = $this->getParentVipAndVip9($profitGraph->getVipLevel(), $profitGraph->getFamily());
+        list($parentVipUid, $vMaxUid) = $this->getParentVipAndVip9($profitGraph->getVipLevel(), $profitGraph->getFamily());
         $this->platformWalletService->getEntityManager()->beginTransaction();
         try {
             $gxOrder = $this->gxOrderService->findById($orderId, LockMode::PESSIMISTIC_WRITE);
@@ -205,19 +207,19 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                 // 增加利润的收益
                 $this->addIncome($userWallet->getUid(), $money);
             }
-            //  获取已激活的vip9 给予200 元
+            //  获取已激活的vipMax 给予200 元
             $money = 200;
-            if ($vip9Uid <= 0) {
+            if ($vMaxUid <= 0) {
                 // 给予平台 余额钱包
-                $note = '[V9截留]升级VIP1订单' . $gxOrder->getId() . '增加平台总余额' . $money . '元';
+                $note = '[VMax截留]升级VIP1订单' . $gxOrder->getId() . '增加平台总余额' . $money . '元';
                 $this->platformWalletService->addMoneyTo($balanceWallet->getId(), $money, $note);
             } else {
-                $userWallet = $this->userWalletService->info(['uid' => $vip9Uid]);
+                $userWallet = $this->userWalletService->info(['uid' => $vMaxUid]);
                 if (!$userWallet instanceof UserWallet) {
                     $this->getEntityManager()->rollback();
-                    return CallResultHelper::fail('订单'.$orderId.'Vip9无效');
+                    return CallResultHelper::fail('订单'.$orderId.'VipMax无效');
                 }
-                $note = '[VIP9佣金]下级用户'.$gxOrder->getUid().'升级VIP1增加佣金' . $money . '元';
+                $note = '[VIPMax佣金]下级用户'.$gxOrder->getUid().'升级VIP1增加佣金' . $money . '元';
                 $this->userWalletService->depositCommission($userWallet->getId(), $money * 100, $note);
                 // 增加利润的收益
                 $this->addIncome($userWallet->getUid(), $money);

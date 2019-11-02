@@ -50,7 +50,7 @@ class GxOrderController extends BaseNeedLoginController
     public function upgradeToVip($level, $jumpUrl = '') {
         $this->checkLogin();
         $level = intval($level);
-        if ($level < 1 || $level > 9) {
+        if ($level < 2 || $level > 10) {
             return '升级的VIP等级无效';
         }
         $profitGraph = $this->profitGraphService->info(['uid' => $this->getUid()]);
@@ -73,7 +73,7 @@ class GxOrderController extends BaseNeedLoginController
         $remark = '从VIP'.$userLevel.'升级到Vip'.$level;
         if ($level > 1) {
             if ($userLevel === 0) {
-                return  '必须成为VIP1后才能升级到其它等级';
+                return  '必须购买课程后才能升级到其它等级';
             }
             $amount = ($level - $userLevel) * $this->gxConfig->getVipUpgrade();
         } else {
