@@ -28,6 +28,10 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
     protected $maxIncome;
 
     const MaxVip = 10;
+    // 顶级 利润 元
+    const VipMaxUpgradeProfit = 200;
+    // 上级 利润 元
+    const VipParentUpgradeProfit = 200;
 
     public function __construct(
         UserWalletServiceInterface $userWalletService,
@@ -190,7 +194,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
             }
 
             //  获取用户直推 给予200元
-            $money = 200;
+            $money = self::VipParentUpgradeProfit;
             if ($parentVipUid <= 0) {
                 // 给予平台 余额钱包
                 $note = '[无上级截留]升级VIP1订单' . $gxOrder->getId() . '增加平台总余额' . $money . '元';
@@ -202,13 +206,13 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                     return CallResultHelper::fail('订单'.$orderId.'上级VipUid无效');
                 }
 
-                $note = '[VIP佣金]下级用户'.$gxOrder->getUid().'升级VIP1增加佣金' . $money . '元';
+                $note = '[佣金]下级用户'.$gxOrder->getUid().'升级VIP1增加佣金' . $money . '元';
                 $this->userWalletService->depositCommission($userWallet->getId(), $money * 100, $note);
                 // 增加利润的收益
                 $this->addIncome($userWallet->getUid(), $money);
             }
             //  获取已激活的vipMax 给予200 元
-            $money = 200;
+            $money = self::VipMaxUpgradeProfit;
             if ($vMaxUid <= 0) {
                 // 给予平台 余额钱包
                 $note = '[VMax截留]升级VIP1订单' . $gxOrder->getId() . '增加平台总余额' . $money . '元';
