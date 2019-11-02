@@ -121,7 +121,7 @@ class GxPayController extends AbstractController
             // vip1
             $ret = $this->profitGraphService->upgradeToVip1($gxOrder->getId(), $gxOrder->getUid(), $this->gxConfig);
         } else {
-            // vip2 - vip9
+            // vip2 - vip10
             $ret = $this->profitGraphService->upgradeToVipN($gxOrder->getId(), $gxOrder->getUid());
         }
         return $ret;
