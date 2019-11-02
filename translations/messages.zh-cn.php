@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'code invalid' => '验证码无效',
+
+    'user not register' => '用户尚未注册',
     'code used' => '验证码无效',
     'User Not Exists' => '用户不存在',
     // 常用操作 - 单个词语
