@@ -163,15 +163,28 @@ class GxOrderController extends BaseNeedLoginController
     }
 
 
-    public function statics() {
+    public function statics($startTime, $endTime) {
+        $startTime = intval($startTime);
+        $endTime = intval($endTime);
+        if ($endTime < $startTime) {
+            $tmp = $endTime;
+            $endTime = $startTime;
+            $startTime = $tmp;
+        }
         $map = [
             'pay_status' => GxOrder::Paid
         ];
+        if ($startTime > 0) {
+            $map['create_time'] = ['gte', $startTime, 'lt', $endTime];
+        }
         $gxOrderAmount = $this->gxOrderService->sum($map, "amount");
 
         $map = [
             'audit_status' => AuditStatus::Passed
         ];
+        if ($startTime > 0) {
+            $map['create_time'] = ['gte', $startTime, 'lt', $endTime];
+        }
         $withdrawAmount = $this->withdrawService->sum($map, "amount");
 
         return CallResultHelper::success([
