@@ -11,6 +11,7 @@ use by\component\paging\vo\PagingParams;
 use Dbh\SfCoreBundle\Common\LoginSessionInterface;
 use Dbh\SfCoreBundle\Common\UserAccountServiceInterface;
 use Dbh\SfCoreBundle\Controller\BaseNeedLoginController;
+use PhpOffice\PhpSpreadsheet\Shared\StringHelper;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -47,7 +48,7 @@ class WithdrawController extends BaseNeedLoginController
         $sheetData = [
             [
                 '提现用户手机号',
-                '提现金额',
+                '提现金额(元)',
                 '申请时间',
                 '审核人昵称',
                 '审核时间'
@@ -56,10 +57,10 @@ class WithdrawController extends BaseNeedLoginController
 
         foreach ($list as $vo) {
             array_push($sheetData, [
-                $vo['uid'],
-                $vo['amount'],
-                $vo['audit_nick'],
+                $vo['mobile'],
+                \by\component\string_extend\helper\StringHelper::numberFormat($vo['amount'] / 100),
                 date('Y-m-d H:i:s', $vo['create_time']),
+                $vo['audit_nick'],
                 date('Y-m-d H:i:s', $vo['update_time'])
             ]);
         }
