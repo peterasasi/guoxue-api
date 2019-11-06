@@ -81,7 +81,7 @@ class GxOrderController extends BaseNeedLoginController
             'pay_status' => GxOrder::Paid
         ];
 
-        $map['create_time'] = ['gt', $startTime, 'lt', $endTime];
+        $map['create_time'] = ['gte', $startTime, 'lt', $endTime];
 
         $list = $this->gxOrderService->queryAllBy($map);
 
