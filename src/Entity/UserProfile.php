@@ -137,9 +137,18 @@ class UserProfile implements UserProfileInterface
     private $realname = '';
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", options={"default"="0","comment"="禁止提现"})
      */
     private $frozenWithdraw;
+
+    /**
+     * UserProfile constructor.
+     */
+    public function __construct()
+    {
+        $this->setFrozenWithdraw(0);
+    }
+
 
     /**
      * @param mixed $user
