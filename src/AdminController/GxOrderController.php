@@ -127,9 +127,9 @@ class GxOrderController extends BaseNeedLoginController
 //            'fee' => '手续费',
 //            'remark' => '备注'
 //        ];
-        $sheet->getStyle("A1:H1")->getAlignment()->setWrapText(true);
+        $sheet->getStyle("A2:H1")->getAlignment()->setWrapText(true);
 
-        $sheet->fromArray($sheetData, null, "B1");
+        $sheet->fromArray($sheetData, null, "A2");
         $sheet->getStyle('F2:F'.count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 //        $sheet->getStyle('F1:F'.count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
