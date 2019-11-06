@@ -137,6 +137,11 @@ class UserProfile implements UserProfileInterface
     private $realname = '';
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $frozenWithdraw;
+
+    /**
      * @param mixed $user
      */
     public function setUser($user): void
@@ -459,5 +464,17 @@ class UserProfile implements UserProfileInterface
             return $this->user->getMobile();
         }
         return '';
+    }
+
+    public function getFrozenWithdraw(): ?int
+    {
+        return $this->frozenWithdraw;
+    }
+
+    public function setFrozenWithdraw(int $frozenWithdraw): self
+    {
+        $this->frozenWithdraw = $frozenWithdraw;
+
+        return $this;
     }
 }
