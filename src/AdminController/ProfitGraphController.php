@@ -73,9 +73,9 @@ class ProfitGraphController extends BaseNeedLoginController
         ];
         $pg = $this->profitGraphService->info($map);
         if ($pg instanceof ProfitGraph) {
+            $note = '用户' . $this->getUid() . '更改用户' . $userId . '等级'.$pg->getVipLevel().'为' . $vipLevel;
             $pg->setVipLevel(intval($vipLevel));
             $this->profitGraphService->flush($pg);
-            $note = '用户' . $this->getUid() . '更改用户' . $userId . '等级'.$pg->getVipLevel().'为' . $vipLevel;
             $this->logUserAction($this->userLogService, $note);
         }
         return CallResultHelper::success();
