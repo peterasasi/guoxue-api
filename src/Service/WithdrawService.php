@@ -4,6 +4,7 @@
 namespace App\Service;
 
 
+use App\Entity\UserProfile;
 use App\Entity\UserWallet;
 use App\Entity\Withdraw;
 use App\Repository\WithdrawRepository;
@@ -12,18 +13,32 @@ use by\component\audit_log\AuditStatus;
 use by\component\string_extend\helper\StringHelper;
 use by\infrastructure\helper\CallResultHelper;
 use Dbh\SfCoreBundle\Common\BaseService;
+use Dbh\SfCoreBundle\Common\UserProfileServiceInterface;
 
 class WithdrawService extends BaseService implements WithdrawServiceInterface
 {
     protected $userWalletService;
+    protected $userProfileService;
 
-    public function __construct(UserWalletService $userWalletService, WithdrawRepository $repository)
+    public function __construct(
+        UserProfileServiceInterface $userProfileService,
+        UserWalletService $userWalletService, WithdrawRepository $repository)
     {
         $this->repo = $repository;
+        $this->userProfileService = $userProfileService;
         $this->userWalletService = $userWalletService;
     }
 
     public function apply($uid, $amount, $cardNo, $bankName, $branchName, $name) {
+
+        $up = $this->userProfileService->info(['user' => $uid]);
+        if (!$up instanceof UserProfile) {
+            return CallResultHelper::fail('用户id错误');
+        }
+
+        if ($up->getFrozenWithdraw() == 1) {
+            return CallResultHelper::success('该帐户已被冻结');
+        }
 
         // 检测钱包是否有足够的可提现余额
         $wallet = $this->userWalletService->info(['uid' => $uid]);
