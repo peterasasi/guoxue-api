@@ -56,6 +56,17 @@ class Withdraw extends BaseEntity
      */
     private $auditNick;
 
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private $mobile;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setMobile('');
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -153,6 +164,18 @@ class Withdraw extends BaseEntity
     public function setAuditNick(string $auditNick): self
     {
         $this->auditNick = $auditNick;
+
+        return $this;
+    }
+
+    public function getMobile(): ?string
+    {
+        return $this->mobile;
+    }
+
+    public function setMobile(string $mobile): self
+    {
+        $this->mobile = $mobile;
 
         return $this;
     }

@@ -4,6 +4,7 @@
 namespace App\Service;
 
 
+use App\Entity\UserAccount;
 use App\Entity\UserProfile;
 use App\Entity\UserWallet;
 use App\Entity\Withdraw;
@@ -13,28 +14,34 @@ use by\component\audit_log\AuditStatus;
 use by\component\string_extend\helper\StringHelper;
 use by\infrastructure\helper\CallResultHelper;
 use Dbh\SfCoreBundle\Common\BaseService;
+use Dbh\SfCoreBundle\Common\UserAccountServiceInterface;
 use Dbh\SfCoreBundle\Common\UserProfileServiceInterface;
 
 class WithdrawService extends BaseService implements WithdrawServiceInterface
 {
     protected $userWalletService;
     protected $userProfileService;
+    protected $userAccountService;
 
     public function __construct(
+        UserAccountServiceInterface $userAccountService,
         UserProfileServiceInterface $userProfileService,
         UserWalletService $userWalletService, WithdrawRepository $repository)
     {
         $this->repo = $repository;
+        $this->userAccountService = $userAccountService;
         $this->userProfileService = $userProfileService;
         $this->userWalletService = $userWalletService;
     }
 
     public function apply($uid, $amount, $cardNo, $bankName, $branchName, $name) {
 
-        $up = $this->userProfileService->info(['user' => $uid]);
-        if (!$up instanceof UserProfile) {
+        $ua = $this->userAccountService->info(['id' => $uid]);
+        if (!$ua instanceof UserAccount) {
             return CallResultHelper::fail('用户id错误');
         }
+
+        $up = $ua->getProfile();
 
         if ($up->getFrozenWithdraw() == 1) {
             return CallResultHelper::success('该帐户已被冻结');
@@ -61,6 +68,7 @@ class WithdrawService extends BaseService implements WithdrawServiceInterface
             'branch_name' => $branchName
         ];
         $entity = new Withdraw();
+        $entity->setMobile($ua->getMobile());
         $entity->setUid($uid);
         $entity->setAuditUid(0);
         $entity->setAuditNick('');
