@@ -118,7 +118,7 @@ class GxOrderController extends BaseNeedLoginController
 
         $sheet->getStyle("A1:H1")->getAlignment()->setWrapText(true);
 
-        $sheet->fromArray($sheetData, null, "A1");
+        $sheet->fromArray($sheetData, null, "A2");
         $spreadsheet->getActiveSheet()->getColumnDimension("A")->setWidth(20);
         $spreadsheet->getActiveSheet()->getColumnDimension("B")->setWidth(16);
         $spreadsheet->getActiveSheet()->getColumnDimension("C")->setWidth(30);
