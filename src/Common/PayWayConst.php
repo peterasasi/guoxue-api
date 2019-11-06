@@ -25,4 +25,23 @@ class PayWayConst
      */
     const PW002 = 'pw1002';
 
+    private $pw;
+
+    public function __construct($pw)
+    {
+        $this->pw = $pw;
+    }
+
+    public function __toString()
+    {
+        switch ($this->pw) {
+            case self::PW002:
+                return '星富通';
+            case self::PW_FAKE:
+                return '模拟测试通道';
+            case self::PW000:
+            default:
+                return '未知通道';
+        }
+    }
 }

@@ -20,6 +20,7 @@
     "egulias/email-validator": "^2.1",
     "endroid/qr-code": "^3.6",
     "nelmio/cors-bundle": "1.5.*",
+    "phpoffice/phpspreadsheet": "^1.9",
     "sybio/image-workshop": "^2.1",
     "symfony/asset": "4.3.*",
     "symfony/cache": "4.3.*",

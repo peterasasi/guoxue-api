@@ -5,6 +5,7 @@ namespace App\AdminController;
 
 
 use App\Common\GxGlobalConfig;
+use App\Common\PayWayConst;
 use App\Entity\GxOrder;
 use App\Entity\ProfitGraph;
 use App\Entity\UserAccount;
@@ -19,7 +20,9 @@ use by\infrastructure\helper\CallResultHelper;
 use Dbh\SfCoreBundle\Common\LoginSessionInterface;
 use Dbh\SfCoreBundle\Common\UserAccountServiceInterface;
 use Dbh\SfCoreBundle\Controller\BaseNeedLoginController;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class GxOrderController extends BaseNeedLoginController
@@ -62,5 +65,75 @@ class GxOrderController extends BaseNeedLoginController
         }
 
         return $this->gxOrderService->queryAndCount($map, $pagingParams, ["id" => "desc"]);
+    }
+
+    public function export($startTime, $endTime) {
+        $startTime = intval($startTime);
+        $endTime = intval($endTime);
+        if ($endTime < $startTime) {
+            $tmp = $endTime;
+            $endTime = $startTime;
+            $startTime = $tmp;
+        }
+
+        $map = [
+            'pay_status' => GxOrder::Paid
+        ];
+
+        $map['create_time'] = ['gt', $startTime, 'lt', $endTime];
+
+        $list = $this->gxOrderService->queryAllBy($map);
+
+        $sheetData = [];
+
+        foreach ($list as $vo) {
+            array_push($sheetData, [
+                $vo['order_no'],
+                $vo['amount'],
+                $vo['arrival_amount'],
+                PayWayConst::PW002
+                $vo['pw'],
+                $vo['pay_ret_order_id'],
+                date("Y-m-d H:i:s", $vo['paid_time']),
+                $vo['fee'],
+                $vo['remark']
+            ]);
+        }
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setTitle(date('Y-m-d', $startTime).'至'.date("Y-m-d", $endTime)."的支付订单列表");
+
+        $columns = [
+            'order_no' => '订单号',
+            'amount' => '金额',
+            'arrival_amount' => '到账金额',
+            'pw' => '支付通道',
+            'pay_ret_order_id' => '支付通道方交易号',
+            'paid_time' => '支付时间',
+            'fee' => '手续费',
+            'remark' => '备注'
+        ];
+
+        $sheet->getStyle("A1:H1")->getAlignment()->setWrapText(true);
+
+        $sheet->fromArray($list, null, "A1");
+        $spreadsheet->getActiveSheet()->getColumnDimension("A")->setWidth(20);
+        $spreadsheet->getActiveSheet()->getColumnDimension("B")->setWidth(16);
+        $spreadsheet->getActiveSheet()->getColumnDimension("C")->setWidth(30);
+
+        // Create your Office 2007 Excel (XLSX Format)
+        $writer = new Xlsx($spreadsheet);
+
+        // Create a Temporary file in the system
+        $fileName = md5(time()).rand(1000, 9999).'.xlsx';
+        $temp_file = tempnam(sys_get_temp_dir(), $fileName);
+
+        // Create the excel file in the tmp directory of the system
+        $writer->save($temp_file);
+
+        // Return the excel file as an attachment
+        return $this->file($temp_file, $fileName, ResponseHeaderBag::DISPOSITION_INLINE);
     }
 }
