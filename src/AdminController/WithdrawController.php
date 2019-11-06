@@ -4,8 +4,6 @@
 namespace App\AdminController;
 
 
-use App\Common\PayWayConst;
-use App\Entity\GxOrder;
 use App\ServiceInterface\WithdrawServiceInterface;
 use by\component\audit_log\AuditStatus;
 use by\component\exception\NotLoginException;
