@@ -12,6 +12,8 @@ use App\Entity\UserAccount;
 use App\Helper\CodeGenerator;
 use App\ServiceInterface\GxOrderServiceInterface;
 use App\ServiceInterface\ProfitGraphServiceInterface;
+use App\ServiceInterface\WithdrawServiceInterface;
+use by\component\audit_log\AuditStatus;
 use by\component\exception\NotLoginException;
 use by\component\paging\vo\PagingParams;
 use by\component\string_extend\helper\StringHelper;
@@ -32,8 +34,10 @@ class GxOrderController extends BaseNeedLoginController
     protected $gxOrderService;
     protected $gxConfig;
     protected $profitGraphService;
+    protected $withdrawService;
 
     public function __construct(
+        WithdrawServiceInterface $withdrawService,
         ProfitGraphServiceInterface $profitGraphService,
         GxGlobalConfig $gxGlobalConfig,
         GxOrderServiceInterface $gxOrderService,
@@ -43,6 +47,7 @@ class GxOrderController extends BaseNeedLoginController
         $this->gxOrderService = $gxOrderService;
         $this->gxConfig = $gxGlobalConfig;
         $this->profitGraphService = $profitGraphService;
+        $this->withdrawService = $withdrawService;
     }
 
     /**
@@ -155,5 +160,23 @@ class GxOrderController extends BaseNeedLoginController
 
         // Return the excel file as an attachment
         return $this->file($temp_file, $fileName, ResponseHeaderBag::DISPOSITION_INLINE);
+    }
+
+
+    public function statics() {
+        $map = [
+            'pay_status' => GxOrder::Paid
+        ];
+        $gxOrderAmount = $this->gxOrderService->sum($map, "amount");
+
+        $map = [
+            'audit_status' => AuditStatus::Passed
+        ];
+        $withdrawAmount = $this->withdrawService->sum($map, "amount");
+
+        return CallResultHelper::success([
+            'gx_order_amount' => $gxOrderAmount,
+            'withdraw_amount' => StringHelper::numberFormat($withdrawAmount / 100)
+        ]);
     }
 }
