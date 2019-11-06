@@ -85,7 +85,18 @@ class GxOrderController extends BaseNeedLoginController
 
         $list = $this->gxOrderService->queryAllBy($map);
 
-        $sheetData = [];
+        $sheetData = [
+            [
+                '订单号',
+                '金额',
+                '到账金额',
+                '支付通道',
+                '支付通道方交易号',
+                '支付时间',
+                '手续费',
+                '备注'
+            ]
+        ];
 
         foreach ($list as $vo) {
             array_push($sheetData, [
@@ -118,7 +129,7 @@ class GxOrderController extends BaseNeedLoginController
 
         $sheet->getStyle("A1:H1")->getAlignment()->setWrapText(true);
 
-        $sheet->fromArray($sheetData, null, "A2");
+        $sheet->fromArray($sheetData, null, "A1");
         $spreadsheet->getActiveSheet()->getColumnDimension("A")->setWidth(40);
         $spreadsheet->getActiveSheet()->getColumnDimension("B")->setWidth(16);
         $spreadsheet->getActiveSheet()->getColumnDimension("C")->setWidth(16);
