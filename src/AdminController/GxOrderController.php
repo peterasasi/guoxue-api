@@ -119,9 +119,11 @@ class GxOrderController extends BaseNeedLoginController
         $sheet->getStyle("A1:H1")->getAlignment()->setWrapText(true);
 
         $sheet->fromArray($sheetData, null, "A2");
-        $spreadsheet->getActiveSheet()->getColumnDimension("A")->setWidth(20);
+        $spreadsheet->getActiveSheet()->getColumnDimension("A")->setWidth(40);
         $spreadsheet->getActiveSheet()->getColumnDimension("B")->setWidth(16);
-        $spreadsheet->getActiveSheet()->getColumnDimension("C")->setWidth(30);
+        $spreadsheet->getActiveSheet()->getColumnDimension("C")->setWidth(16);
+        $spreadsheet->getActiveSheet()->getColumnDimension("F")->setWidth(40);
+        $spreadsheet->getActiveSheet()->getColumnDimension("H")->setWidth(120);
 
         // Create your Office 2007 Excel (XLSX Format)
         $writer = new Xlsx($spreadsheet);
