@@ -114,8 +114,8 @@ class GxOrderController extends BaseNeedLoginController
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-
-        $sheet->setTitle(date('Y-m-d', $startTime).'至'.date("Y-m-d", $endTime)."的支付订单列表");
+        $title = date('Y-m-d', $startTime).'至'.date("Y-m-d", $endTime)."的支付订单列表";
+        $sheet->setTitle($title);
 
 //        $columns = [
 //            'order_no' => '订单号',
@@ -127,10 +127,9 @@ class GxOrderController extends BaseNeedLoginController
 //            'fee' => '手续费',
 //            'remark' => '备注'
 //        ];
-
         $sheet->getStyle("A1:H1")->getAlignment()->setWrapText(true);
 
-        $sheet->fromArray($sheetData, null, "A1");
+        $sheet->fromArray($sheetData, null, "B1");
         $sheet->getStyle('F1:F'.count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 //        $sheet->getStyle('F1:F'.count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
@@ -140,6 +139,8 @@ class GxOrderController extends BaseNeedLoginController
         $sheet->getColumnDimension("E")->setWidth(20);
         $sheet->getColumnDimension("F")->setWidth(20);
         $sheet->getColumnDimension("H")->setWidth(120);
+        $sheet->mergeCells('A1:H1');
+        $sheet->setCellValue('A1', $title);
 
         // Create your Office 2007 Excel (XLSX Format)
         $writer = new Xlsx($spreadsheet);
