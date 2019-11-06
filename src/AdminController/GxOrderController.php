@@ -140,6 +140,7 @@ class GxOrderController extends BaseNeedLoginController
         $sheet->getColumnDimension("F")->setWidth(20);
         $sheet->getColumnDimension("H")->setWidth(120);
         $sheet->mergeCells('A1:H1');
+        $sheet->getStyle('A1:H1')->getFont()->setBold(true);
         $sheet->setCellValue('A1', $title);
 
         // Create your Office 2007 Excel (XLSX Format)
