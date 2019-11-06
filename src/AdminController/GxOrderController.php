@@ -188,7 +188,7 @@ class GxOrderController extends BaseNeedLoginController
         $withdrawAmount = $this->withdrawService->sum($map, "amount");
 
         return CallResultHelper::success([
-            'gx_order_amount' => $gxOrderAmount,
+            'gx_order_amount' => empty($gxOrderAmount) ? "0" : $gxOrderAmount,
             'withdraw_amount' => StringHelper::numberFormat($withdrawAmount / 100)
         ]);
     }
