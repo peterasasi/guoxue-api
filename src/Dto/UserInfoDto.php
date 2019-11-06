@@ -51,6 +51,7 @@ class UserInfoDto
 
     protected $balance;
     protected $inviteCnt;
+    protected $frozenWithdraw;
 
 
     public function setProfitGraph(ProfitGraph $profitGraph) {
@@ -73,6 +74,23 @@ class UserInfoDto
         $this->setMobileAuth($userAccount->isMobileAuth());
         $this->setUserProfile($userAccount->getProfile());
         $this->setPwdIsSet($userAccount->getPasswordSet());
+        $this->setFrozenWithdraw($userAccount->getProfile()->getFrozenWithdraw());
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getFrozenWithdraw()
+    {
+        return $this->frozenWithdraw;
+    }
+
+    /**
+     * @param mixed $frozenWithdraw
+     */
+    public function setFrozenWithdraw($frozenWithdraw): void
+    {
+        $this->frozenWithdraw = $frozenWithdraw;
     }
 
     /**
