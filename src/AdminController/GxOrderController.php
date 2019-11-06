@@ -130,7 +130,7 @@ class GxOrderController extends BaseNeedLoginController
         $sheet->getStyle("A1:H1")->getAlignment()->setWrapText(true);
 
         $sheet->fromArray($sheetData, null, "B1");
-        $sheet->getStyle('F1:F'.count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle('F2:F'.count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 //        $sheet->getStyle('F1:F'.count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
         $sheet->getColumnDimension("A")->setWidth(40);
