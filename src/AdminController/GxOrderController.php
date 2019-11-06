@@ -21,6 +21,7 @@ use Dbh\SfCoreBundle\Common\LoginSessionInterface;
 use Dbh\SfCoreBundle\Common\UserAccountServiceInterface;
 use Dbh\SfCoreBundle\Controller\BaseNeedLoginController;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -130,11 +131,15 @@ class GxOrderController extends BaseNeedLoginController
         $sheet->getStyle("A1:H1")->getAlignment()->setWrapText(true);
 
         $sheet->fromArray($sheetData, null, "A1");
-        $spreadsheet->getActiveSheet()->getColumnDimension("A")->setWidth(40);
-        $spreadsheet->getActiveSheet()->getColumnDimension("B")->setWidth(16);
-        $spreadsheet->getActiveSheet()->getColumnDimension("C")->setWidth(16);
-        $spreadsheet->getActiveSheet()->getColumnDimension("F")->setWidth(40);
-        $spreadsheet->getActiveSheet()->getColumnDimension("H")->setWidth(120);
+        $sheet->getStyle('F1:F'.count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+//        $sheet->getStyle('F1:F'.count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+
+        $sheet->getColumnDimension("A")->setWidth(40);
+        $sheet->getColumnDimension("B")->setWidth(16);
+        $sheet->getColumnDimension("C")->setWidth(16);
+        $sheet->getColumnDimension("E")->setWidth(20);
+        $sheet->getColumnDimension("F")->setWidth(20);
+        $sheet->getColumnDimension("H")->setWidth(120);
 
         // Create your Office 2007 Excel (XLSX Format)
         $writer = new Xlsx($spreadsheet);
