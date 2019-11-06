@@ -27,10 +27,13 @@ class ProfitGraphController extends BaseNeedLoginController
     {
         $this->checkLogin();
         $map = [
-            'parent_uid' => $childUid
+            'parent_uid' => $this->getUid()
         ];
         if (!empty($mobile)) {
             $map['mobile'] = ['like', '%' . $mobile . '%'];
+        }
+        if ($childUid > 0) {
+            $map['parent_uid'] = $childUid;
         }
 
         return $this->profitGraphService->queryAndCount($map, $pagingParams, ["createTime" => "desc"]);
