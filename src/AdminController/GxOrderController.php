@@ -21,6 +21,7 @@ use Dbh\SfCoreBundle\Common\LoginSessionInterface;
 use Dbh\SfCoreBundle\Common\UserAccountServiceInterface;
 use Dbh\SfCoreBundle\Controller\BaseNeedLoginController;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -91,8 +92,7 @@ class GxOrderController extends BaseNeedLoginController
                 $vo['order_no'],
                 $vo['amount'],
                 $vo['arrival_amount'],
-                PayWayConst::PW002
-                $vo['pw'],
+                (new PayWayConst($vo['pw']))->__toString(),
                 $vo['pay_ret_order_id'],
                 date("Y-m-d H:i:s", $vo['paid_time']),
                 $vo['fee'],
@@ -105,20 +105,20 @@ class GxOrderController extends BaseNeedLoginController
 
         $sheet->setTitle(date('Y-m-d', $startTime).'至'.date("Y-m-d", $endTime)."的支付订单列表");
 
-        $columns = [
-            'order_no' => '订单号',
-            'amount' => '金额',
-            'arrival_amount' => '到账金额',
-            'pw' => '支付通道',
-            'pay_ret_order_id' => '支付通道方交易号',
-            'paid_time' => '支付时间',
-            'fee' => '手续费',
-            'remark' => '备注'
-        ];
+//        $columns = [
+//            'order_no' => '订单号',
+//            'amount' => '金额',
+//            'arrival_amount' => '到账金额',
+//            'pw' => '支付通道',
+//            'pay_ret_order_id' => '支付通道方交易号',
+//            'paid_time' => '支付时间',
+//            'fee' => '手续费',
+//            'remark' => '备注'
+//        ];
 
         $sheet->getStyle("A1:H1")->getAlignment()->setWrapText(true);
 
-        $sheet->fromArray($list, null, "A1");
+        $sheet->fromArray($sheetData, null, "A1");
         $spreadsheet->getActiveSheet()->getColumnDimension("A")->setWidth(20);
         $spreadsheet->getActiveSheet()->getColumnDimension("B")->setWidth(16);
         $spreadsheet->getActiveSheet()->getColumnDimension("C")->setWidth(30);
