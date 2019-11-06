@@ -83,4 +83,16 @@ class UserController extends BaseNeedLoginController
         }
         return CallResultHelper::success();
     }
+
+    public function unfrozen_withdraw($userId) {
+        $this->checkLogin();
+        $up = $this->userProfileService->info(['user' => $userId]);
+        if ($up instanceof UserProfile) {
+            if ($up->getFrozenWithdraw() == 1) {
+                $up->setFrozenWithdraw(0);
+                $this->userProfileService->flush($up);
+            }
+        }
+        return CallResultHelper::success();
+    }
 }
