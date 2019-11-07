@@ -64,14 +64,19 @@ class GxOrderController extends BaseNeedLoginController
     /**
      * 查询订单
      * @param PagingParams $pagingParams
+     * @param int $payStatus
      * @param string $mobile
      * @param string $orderNo
      * @return CallResult|string
      * @throws NotLoginException
      */
-    public function query(PagingParams $pagingParams, $mobile = '', $orderNo = '') {
+    public function query(PagingParams $pagingParams, $payStatus = 0, $mobile = '', $orderNo = '') {
         $this->checkLogin();
         $map = [];
+
+        if ($payStatus != 2) {
+            $map['pay_status'] = intval($payStatus);
+        }
         if (!empty($orderNo)) {
             $map['order_no'] = ['like', '%'.$orderNo.'%'];
         }
