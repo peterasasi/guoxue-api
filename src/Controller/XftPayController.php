@@ -186,19 +186,20 @@ class XftPayController extends AbstractController
 
     /**
      * 支付方式1 - 补单
-     * @Route("/pay/notify/repair", name="pay_notify_xft", methods={"GET","POST"})
+     * @Route("/pay/notify/repair", name="pay_repair_xft", methods={"GET","POST"})
      * @param Request $request
      * @return string
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function repair(Request $request)
     {
 
+        $orderNo = $request->get('order_no');
+        $outTradeNo = $request->get('out_trade_no');
 
-        $outTradeNo = $request->get('order_no');
-        $outTradeNo = $request->get('out_order_no');
 
-
-        $gxOrder = $this->gxOrderService->info(['order_no' => $outTradeNo]);
+        $gxOrder = $this->gxOrderService->info(['order_no' => $orderNo]);
         if (!$gxOrder instanceof GxOrder) {
             $this->logger->error('[订单号不存在]');
             return 'out_order_id not exists';
