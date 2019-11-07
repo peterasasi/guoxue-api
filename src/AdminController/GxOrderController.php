@@ -70,7 +70,8 @@ class GxOrderController extends BaseNeedLoginController
      * @return CallResult|string
      * @throws NotLoginException
      */
-    public function query(PagingParams $pagingParams, $payStatus = 0, $username = '', $orderNo = '') {
+    public function query(PagingParams $pagingParams, $payStatus = 0, $username = '', $orderNo = '')
+    {
         $this->checkLogin();
         $map = [];
 
@@ -78,7 +79,7 @@ class GxOrderController extends BaseNeedLoginController
             $map['pay_status'] = intval($payStatus);
         }
         if (!empty($orderNo)) {
-            $map['order_no'] = ['like', '%'.$orderNo.'%'];
+            $map['order_no'] = ['like', '%' . $orderNo . '%'];
         }
         if (!empty($username)) {
             $ua = $this->userAccountService->info(['username' => $username, 'project_id' => $this->getProjectId()]);
@@ -90,7 +91,8 @@ class GxOrderController extends BaseNeedLoginController
         return $this->gxOrderService->queryAndCount($map, $pagingParams, ["id" => "desc"]);
     }
 
-    public function export($startTime, $endTime) {
+    public function export($startTime, $endTime)
+    {
         $startTime = intval($startTime);
         $endTime = intval($endTime);
         if ($endTime < $startTime) {
@@ -135,7 +137,7 @@ class GxOrderController extends BaseNeedLoginController
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $title = date('Y-m-d', $startTime).'至'.date("Y-m-d", $endTime)."的支付订单列表";
+        $title = date('Y-m-d', $startTime) . '至' . date("Y-m-d", $endTime) . "的支付订单列表";
         $sheet->setTitle($title);
 
 //        $columns = [
@@ -151,7 +153,7 @@ class GxOrderController extends BaseNeedLoginController
         $sheet->getStyle("A2:H1")->getAlignment()->setWrapText(true);
 
         $sheet->fromArray($sheetData, null, "A2");
-        $sheet->getStyle('F2:F'.count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+        $sheet->getStyle('F2:F' . count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 //        $sheet->getStyle('F1:F'.count($sheetData))->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
 
         $sheet->getColumnDimension("A")->setWidth(40);
@@ -168,7 +170,7 @@ class GxOrderController extends BaseNeedLoginController
         $writer = new Xlsx($spreadsheet);
 
         // Create a Temporary file in the system
-        $fileName = md5(time()).rand(1000, 9999).'.xlsx';
+        $fileName = md5(time()) . rand(1000, 9999) . '.xlsx';
         $temp_file = tempnam(sys_get_temp_dir(), $fileName);
 
         // Create the excel file in the tmp directory of the system
@@ -179,7 +181,8 @@ class GxOrderController extends BaseNeedLoginController
     }
 
 
-    public function statics($startTime, $endTime) {
+    public function statics($startTime, $endTime)
+    {
         $startTime = intval($startTime);
         $endTime = intval($endTime);
         if ($endTime < $startTime) {
@@ -210,7 +213,8 @@ class GxOrderController extends BaseNeedLoginController
     }
 
 
-    public function repair($orderNo, $outTradeNo) {
+    public function repair($orderNo, $outTradeNo)
+    {
         $gxOrder = $this->gxOrderService->info(['order_no' => $orderNo]);
         if (!$gxOrder instanceof GxOrder) {
             $this->logger->error('[订单号不存在]');
@@ -228,36 +232,39 @@ class GxOrderController extends BaseNeedLoginController
             return '用户' . $gxOrder->getUid() . '的钱包不存在';
         }
 
-        $this->gxOrderService->getEntityManager()->beginTransaction();
-        try {
-            $this->gxOrderService->findById($gxOrder->getId(), LockMode::PESSIMISTIC_READ);
-            if ($gxOrder->getPayStatus() == GxOrder::Paid) {
+
+        if ($gxOrder->getProcessed() != 1) {
+            $this->logger->error('[支付回调] 已处理订单' . $gxOrder->getOrderNo());
+            return 'already processed';
+        }
+        if ($gxOrder->getPayStatus() == GxOrder::PayInitial) {
+            $this->gxOrderService->getEntityManager()->beginTransaction();
+            try {
+                $this->gxOrderService->findById($gxOrder->getId(), LockMode::PESSIMISTIC_READ);
+
+                $gxOrder->setPayStatus(GxOrder::Paid);
+                $gxOrder->setPaidTime(time());
+                $gxOrder->setArrivalAmount(StringHelper::numberFormat($gxOrder->getAmount() / 100, 2));
+                $gxOrder->setSign('');
+                $gxOrder->setPayRetOrderId($outTradeNo);
+                $gxOrder->setMerchantCode('');
+                $gxOrder->setPw(PayWayConst::PW002);
+                $gxOrder->setRemark($gxOrder->getRemark() . '[补单]');
+
+                $note = '充值了' . $gxOrder->getAmount() . '元';
+                $this->userWalletService->deposit($wallet->getId(), $gxOrder->getAmount() * 100, $note);
+
+                $note = '购买VIP' . $gxOrder->getVipItemId() . '支出了' . ($gxOrder->getAmount() - $gxOrder->getExtraAmount()) . '元';
+                $this->userWalletService->withdraw($wallet->getId(), ($gxOrder->getAmount() - $gxOrder->getExtraAmount()) * 100, $note);
+
+
+                $this->gxOrderService->flush($gxOrder);
+                $this->gxOrderService->getEntityManager()->commit();
+            } catch (Exception $exception) {
                 $this->gxOrderService->getEntityManager()->rollback();
-                $this->logger->error('[支付回调] 订单已处理' . $gxOrder->getOrderNo());
-                return 'already processed';
+                $this->logger->error('[支付回调] 更新订单信息失败' . $exception->getMessage());
+                return '更新订单信息失败' . $exception->getMessage();
             }
-            $gxOrder->setPayStatus(GxOrder::Paid);
-            $gxOrder->setPaidTime(time());
-            $gxOrder->setArrivalAmount(StringHelper::numberFormat($gxOrder->getAmount() / 100, 2));
-            $gxOrder->setSign('');
-            $gxOrder->setPayRetOrderId($outTradeNo);
-            $gxOrder->setMerchantCode('');
-            $gxOrder->setPw(PayWayConst::PW002);
-            $gxOrder->setRemark($gxOrder->getRemark().'[补单]');
-
-            $note = '充值了' . $gxOrder->getAmount() . '元';
-            $this->userWalletService->deposit($wallet->getId(), $gxOrder->getAmount() * 100, $note);
-
-            $note = '购买VIP' . $gxOrder->getVipItemId() . '支出了' . ($gxOrder->getAmount() - $gxOrder->getExtraAmount()) . '元';
-            $this->userWalletService->withdraw($wallet->getId(), ($gxOrder->getAmount() - $gxOrder->getExtraAmount()) * 100, $note);
-
-
-            $this->gxOrderService->flush($gxOrder);
-            $this->gxOrderService->getEntityManager()->commit();
-        } catch (Exception $exception) {
-            $this->gxOrderService->getEntityManager()->rollback();
-            $this->logger->error('[支付回调] 更新订单信息失败' . $exception->getMessage());
-            return '更新订单信息失败' . $exception->getMessage();
         }
         $ret = $this->paySuccess($gxOrder);
         if ($ret->isFail()) {
