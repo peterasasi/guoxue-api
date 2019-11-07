@@ -10,7 +10,7 @@ use Dbh\SfCoreBundle\Common\BaseServiceInterface;
 
 interface ProfitGraphServiceInterface extends BaseServiceInterface
 {
-    public function init($uid, $mobile, $inviteUid);
+    public function init($username, $uid, $mobile, $inviteUid);
 
     public function getParentVipAndVip9($curVipLevel, $family);
 

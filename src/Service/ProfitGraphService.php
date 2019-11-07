@@ -44,13 +44,14 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         $this->maxIncome = 5900000;
     }
 
-    public function init($uid, $mobile, $inviteUid)
+    public function init($username, $uid, $mobile, $inviteUid)
     {
         if ($uid === $inviteUid) $inviteUid = 0;
         $entity = $this->info(['uid' => $uid]);
         if ($entity instanceof ProfitGraph) {
             if (empty($entity->getMobile())) {
                 $entity->setMobile($mobile);
+                $entity->setUsername($username);
                 $this->repo->flush($entity);
             }
             return $entity;
@@ -65,6 +66,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         $entity = new ProfitGraph();
         $entity->setMobile($mobile);
         $entity->setUid($uid);
+        $entity->setUsername($username);
         $entity->setParentUid($inviteUid);
         $entity->setFamily($family);
         $this->repo->add($entity);

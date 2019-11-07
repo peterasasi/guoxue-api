@@ -307,7 +307,7 @@ class UserLoginSessionController extends BaseNeedLoginController
         $dto = new UserLoginDto();
         $dto->setUserAccount($userAccount);
         $dto->setSid($this->getSId());
-        $profitGraph = $this->profitGraphService->init($userAccount->getId(), $userAccount->getMobile(), $userAccount->getProfile()->getInviteUid());
+        $profitGraph = $this->profitGraphService->init($userAccount->getUsername(), $userAccount->getId(), $userAccount->getMobile(), $userAccount->getProfile()->getInviteUid());
         if ($profitGraph instanceof ProfitGraph) {
             $dto->setVipLevel($profitGraph->getVipLevel());
         }
@@ -347,7 +347,7 @@ class UserLoginSessionController extends BaseNeedLoginController
             $this->userGradeService->add($userGrade);
         }
 
-        $profitGraph = $this->profitGraphService->init($userAccount->getId(), $userAccount->getMobile(), $userAccount->getProfile()->getInviteUid());
+        $profitGraph = $this->profitGraphService->init($userAccount->getUsername(), $userAccount->getId(), $userAccount->getMobile(), $userAccount->getProfile()->getInviteUid());
 
         $dto = new UserLoginDto();
         $dto->setUserAccount($userAccount);
@@ -535,7 +535,7 @@ class UserLoginSessionController extends BaseNeedLoginController
 
         if ($ret instanceof CallResult) {
             if ($ret->isSuccess()) {
-                $profitGraph = $this->profitGraphService->init($userAccount->getId(), $userAccount->getMobile(), $userProfile->getInviteUid());
+                $profitGraph = $this->profitGraphService->init($userAccount->getUsername(), $userAccount->getId(), $userAccount->getMobile(), $userProfile->getInviteUid());
 
                 $ua = $ret->getData();
                 $dto = new UserLoginDto();

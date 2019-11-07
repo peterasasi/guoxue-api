@@ -67,9 +67,15 @@ class ProfitGraph extends BaseEntity
      */
     private $family;
 
+    /**
+     * @ORM\Column(type="string", length=32)
+     */
+    private $username;
+
     public function __construct()
     {
         parent::__construct();
+        $this->setUsername('');
         $this->setActive(0);
         $this->setTotalIncome(0);
         $this->setParentUid(0);
@@ -199,6 +205,18 @@ class ProfitGraph extends BaseEntity
     public function setFamily(string $family): self
     {
         $this->family = $family;
+
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
 
         return $this;
     }
