@@ -76,7 +76,7 @@ class ProfitGraph extends BaseEntity
     {
         parent::__construct();
         $this->setUsername('');
-        $this->setActive(0);
+        $this->setActive(1);
         $this->setTotalIncome(0);
         $this->setParentUid(0);
         $this->setVipLevel(0);
