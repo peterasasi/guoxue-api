@@ -198,7 +198,6 @@ class XftPayController extends AbstractController
         $orderNo = $request->get('order_no');
         $outTradeNo = $request->get('out_trade_no');
 
-
         $gxOrder = $this->gxOrderService->info(['order_no' => $orderNo]);
         if (!$gxOrder instanceof GxOrder) {
             $this->logger->error('[订单号不存在]');
