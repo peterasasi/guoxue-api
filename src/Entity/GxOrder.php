@@ -123,6 +123,11 @@ class GxOrder extends BaseEntity
      */
     private $merchantCode;
 
+    /**
+     * @ORM\Column(type="decimal", precision=12, scale=3)
+     */
+    private $extraAmount;
+
     public function __construct()
     {
         parent::__construct();
@@ -382,6 +387,18 @@ class GxOrder extends BaseEntity
     public function setMerchantCode(string $merchantCode): self
     {
         $this->merchantCode = $merchantCode;
+
+        return $this;
+    }
+
+    public function getExtraAmount()
+    {
+        return $this->extraAmount;
+    }
+
+    public function setExtraAmount($extraAmount): self
+    {
+        $this->extraAmount = $extraAmount;
 
         return $this;
     }
