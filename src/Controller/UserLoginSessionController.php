@@ -394,18 +394,19 @@ class UserLoginSessionController extends BaseNeedLoginController
 
     /**
      * 通过短信更新密码
+     * @param $username
      * @param $mobile
      * @param $countryNo
      * @param $code
      * @param $newPwd
      * @return CallResult|string
      */
-    public function updatePwdByMobileCode($mobile, $countryNo, $code, $newPwd)
+    public function updatePwdByMobileCode($username, $mobile, $countryNo, $code, $newPwd)
     {
         $callResult = $this->securityCodeService->isLegalCode($code, $this->getProjectId() . '_' . $countryNo . '_' . $mobile, SecurityCodeType::TYPE_FOR_FOUND_PSW, $this->getClientId());
         if ($callResult->isFail()) return $callResult;
 
-        $result = $this->userAccountService->findOne(['mobile' => $mobile, 'country_no' => $countryNo, 'project_id' => $this->getProjectId()]);
+        $result = $this->userAccountService->findOne(['username' => $username, 'mobile' => $mobile, 'country_no' => $countryNo, 'project_id' => $this->getProjectId()]);
         if ($result instanceof UserAccount) {
             // 新密码有效性检测
             $ua = (new UserAccount());
