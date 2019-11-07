@@ -31,7 +31,7 @@ class ProfitGraphController extends BaseNeedLoginController
         $map = [
             'parent_uid' => $this->getUid()
         ];
-        if (!empty($mobile)) {
+        if (!empty($username)) {
             $map['username'] = ['like', '%' . $username . '%'];
         }
         if ($childUid > 0) {
