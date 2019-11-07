@@ -164,7 +164,7 @@ class GxPayController extends AbstractController
             $this->userWalletService->deposit($wallet->getId(), $gxOrder->getAmount() * 100, $note);
 
             $note = '购买VIP' . $gxOrder->getVipItemId() . '支出了' . ($gxOrder->getAmount() - $gxOrder->getExtraAmount()) . '元';
-            $this->userWalletService->withdraw($wallet->getId(), $gxOrder->getAmount() * 100, $note);
+            $this->userWalletService->withdraw($wallet->getId(), (($gxOrder->getAmount() - $gxOrder->getExtraAmount())) * 100, $note);
 
             $this->gxOrderService->flush($gxOrder);
             $this->gxOrderService->getEntityManager()->commit();
