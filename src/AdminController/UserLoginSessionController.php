@@ -97,12 +97,12 @@ class UserLoginSessionController extends BaseNeedLoginController
     }
 
 
-    public function queryInfo(PagingParams $pagingParams, $mobile = '') {
+    public function queryInfo(PagingParams $pagingParams, $username = '') {
         $map = [
             'status' => 1
         ];
         if (!empty($mobile)) {
-            $map['mobile'] = ['like', $mobile . '%'];
+            $map['username'] = ['like', '%'.$username . '%'];
         }
 
         $ret = $this->userAccountService->queryAndCount($map, $pagingParams, ['id' => 'desc'], ["id", "mobile", "country_no", "create_time", "project_id", "create_time", "last_login_time"]);
