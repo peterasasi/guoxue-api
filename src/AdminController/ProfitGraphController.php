@@ -29,14 +29,14 @@ class ProfitGraphController extends BaseNeedLoginController
         $this->userLogService = $userLogService;
     }
 
-    public function query(PagingParams $pagingParams, $childUid = 0, $mobile = '')
+    public function query(PagingParams $pagingParams, $childUid = 0, $username = '')
     {
         $this->checkLogin();
         $map = [
             'parent_uid' => $this->getUid()
         ];
-        if (!empty($mobile)) {
-            $map['mobile'] = ['like', '%' . $mobile . '%'];
+        if (!empty($username)) {
+            $map['username'] = ['like', '%' . $username . '%'];
         }
         if ($childUid > 0) {
             $map['parent_uid'] = $childUid;
