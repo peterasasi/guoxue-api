@@ -31,6 +31,7 @@ class UserWalletController extends BaseNeedLoginController
     }
 
     /**
+     * @param $userId
      * @param PagingParams $pagingParams
      * @return mixed
      * @throws \by\component\exception\NotLoginException
