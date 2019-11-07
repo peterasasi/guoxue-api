@@ -233,7 +233,7 @@ class GxOrderController extends BaseNeedLoginController
         }
 
 
-        if ($gxOrder->getProcessed() != 1) {
+        if ($gxOrder->getProcessed() == 1) {
             $this->logger->error('[支付回调] 已处理订单' . $gxOrder->getOrderNo());
             return 'already processed';
         }
