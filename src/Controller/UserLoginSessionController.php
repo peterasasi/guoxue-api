@@ -173,7 +173,7 @@ class UserLoginSessionController extends BaseNeedLoginController
             $unionid = $userInfo['unionid'];
             $userAccount = $this->userAccountService->info(['openid' => $openId]);
             if (!($userAccount instanceof UserAccount)) {
-                $dto = $this->registerByMobileCode($mobile, $code, $countryNo, $password, $openId, $unionid);
+                $dto = $this->registerByMobileCode($mobile, $code, $countryNo, '', $password, $openId, $unionid);
                 if (!($dto instanceof UserLoginDto)) {
                     return $dto;
                 }
@@ -493,7 +493,7 @@ class UserLoginSessionController extends BaseNeedLoginController
         return $dto;
     }
 
-    public function registerByMobileCode($mobile, $code, $countryNo = '86', $password = '', $openId = '', $unionid = '', $idcode = '')
+    public function registerByMobileCode($mobile, $code, $countryNo = '86', $username = '', $password = '', $openId = '', $unionid = '', $idcode = '')
     {
 
         if (empty(trim($countryNo))) $countryNo = '86';
@@ -503,7 +503,18 @@ class UserLoginSessionController extends BaseNeedLoginController
         $userAccount = new UserAccount();
         $userAccount->setCountryNo($countryNo);
         $userAccount->setMobile($mobile);
-        $username = 'm' . trim($countryNo, "+") . $mobile;
+        if (empty($username)) {
+            $username = 'm' . trim($countryNo, "+") . $mobile;
+        } else {
+            $uaExists = $this->userAccountService->info(['username' => $username]);
+            if ($uaExists instanceof UserAccount) {
+                return CallResultHelper::fail('该用户名已注册');
+            }
+            $cnt = $this->userAccountService->count(['mobile' => $mobile, 'project_id' => $this->getProjectId()]);
+            if ($cnt >= 4) {
+                return CallResultHelper::fail('一个手机号只能注册4个帐户');
+            }
+        }
         $userAccount->setUsername($username);
         if (!empty($password)) {
             $userAccount->setPasswordSet(1);
