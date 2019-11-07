@@ -198,7 +198,7 @@ class UserLoginSessionController extends BaseNeedLoginController
 //        }
     }
 
-    public function registerByMobileCode($mobile, $code, $countryNo = '86', $password = '', $openId = '', $unionid = '', $idcode = '')
+    public function registerByMobileCode($mobile, $code, $countryNo = '86', $username = '', $password = '', $openId = '', $unionid = '', $idcode = '')
     {
 
         if (empty(trim($countryNo))) $countryNo = '86';
@@ -209,7 +209,14 @@ class UserLoginSessionController extends BaseNeedLoginController
         $userAccount = new UserAccount();
         $userAccount->setCountryNo($countryNo);
         $userAccount->setMobile($mobile);
-        $username = 'm' . trim($countryNo, "+") . $mobile;
+        if (empty($username)) {
+            $username = 'm' . trim($countryNo, "+") . $mobile;
+        } else {
+            $uaExists = $this->userAccountService->info(['username' => $username]);
+            if ($uaExists instanceof UserAccount) {
+                return CallResultHelper::fail('该用户名已注册');
+            }
+        }
         $userAccount->setUsername($username);
         if (empty($password)) $password = substr(md5($mobile . time()), 0, 16);
         $userAccount->setPassword($password);
