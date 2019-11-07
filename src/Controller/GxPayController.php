@@ -250,11 +250,6 @@ class GxPayController extends AbstractController
                 $this->xftMerchantService->incFailCnt($this->xftCfgId);
                 return $this->render('gxpay/error.html.twig', ['msg' => $ret->getMsg()]);
             }
-            $xftPay->getConfig()->setAppId($cfg['app_id']);
-            $xftPay->getConfig()->setMerchantCode($cfg['code']);
-            $xftPay->getConfig()->setKey($cfg['md5key']);
-            $xftPay->getConfig()->setNotifyUrl($cfg['notify_url']);
-            $xftPay->getConfig()->setClientIp($cfg['client_ip']);
             $payConfig = [
                 'code' => $xftPay->getConfig()->getMerchantCode(),
                 'client_ip' => $xftPay->getConfig()->getClientIp(),
