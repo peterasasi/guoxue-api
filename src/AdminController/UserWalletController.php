@@ -39,7 +39,7 @@ class UserWalletController extends BaseNeedLoginController
     public function queryLogHistory($userId, PagingParams $pagingParams)
     {
         $this->checkLogin();
-        return $this->logService->queryAndCount(['uid' => $userId], $pagingParams, ["id" => "desc"]);
+        return $this->logService->queryAndCount(['uid' => $userId], $pagingParams, ["createTime" => "desc"]);
     }
 
 }
