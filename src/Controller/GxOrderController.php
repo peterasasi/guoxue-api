@@ -68,6 +68,10 @@ class GxOrderController extends BaseNeedLoginController
 //            return '您必须邀请指定人数才能进行升级';
         }
 
+        if (($level - $userLevel) > 1) {
+            return '参数错误,不能越级升级';
+        }
+
         $this->gxConfig->init($this->getProjectId());
         $entity = new GxOrder();
         $remark = '从VIP'.$userLevel.'升级到Vip'.$level;
