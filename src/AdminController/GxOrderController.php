@@ -65,7 +65,7 @@ class GxOrderController extends BaseNeedLoginController
      * 查询订单
      * @param PagingParams $pagingParams
      * @param int $payStatus
-     * @param string $mobile
+     * @param string $username
      * @param string $orderNo
      * @return CallResult|string
      * @throws NotLoginException
