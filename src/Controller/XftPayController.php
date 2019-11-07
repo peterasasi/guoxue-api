@@ -184,6 +184,12 @@ class XftPayController extends AbstractController
         }
     }
 
+    /**
+     * 支付方式1 - 补单
+     * @Route("/pay/notify/repair", name="pay_notify_xft", methods={"GET","POST"})
+     * @param Request $request
+     * @return string
+     */
     public function repair(Request $request)
     {
 
