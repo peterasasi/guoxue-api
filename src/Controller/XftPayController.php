@@ -97,7 +97,7 @@ class XftPayController extends AbstractController
 
             $gxOrder = $this->gxOrderService->info(['order_no' => $np->getOutTradeNo()]);
             if (!$gxOrder instanceof GxOrder) {
-                $this->logger->error('[订单号不存在]');
+                $this->logger->error('[订单号不存在]'.($rawData));
                 return 'out_order_id not exists';
             }
 
@@ -123,21 +123,21 @@ class XftPayController extends AbstractController
                     $payInstance->getConfig()->setKey($payConfig['key']);
                     $payInstance->getConfig()->setAppId($payConfig['app_id']);
                 } else {
-                    $this->logger->error('[支付回调签名失败]订单缺少支付信息');
+                    $this->logger->error('[支付回调签名失败]订单缺少支付信息'.($rawData));
                     return 'verify sign fail';
                 }
                 $all = $rawData;
                 unset($all['sign']);
                 $localSign = SignTool::sign($all, $payInstance->getConfig());
                 if (!($localSign === $np->getSign())) {
-                    $this->logger->error('[支付回调签名失败]');
+                    $this->logger->error('[支付回调签名失败]'.($rawData));
                     return 'verify sign fail';
                 }
             }
 
             $wallet = $this->userWalletService->info(['uid' => $gxOrder->getUid()]);
             if (!$wallet instanceof UserWallet) {
-                $this->logger->error('用户' . $gxOrder->getUid() . '的钱包不存在');
+                $this->logger->error('用户' . $gxOrder->getUid() . '的钱包不存在'.($rawData));
                 return '用户' . $gxOrder->getUid() . '的钱包不存在';
             }
 
@@ -168,13 +168,13 @@ class XftPayController extends AbstractController
                 $this->gxOrderService->getEntityManager()->commit();
             } catch (Exception $exception) {
                 $this->gxOrderService->getEntityManager()->rollback();
-                $this->logger->error('[支付回调] 更新订单信息失败' . $exception->getMessage());
+                $this->logger->error('[支付回调] 更新订单信息失败' . $exception->getMessage().($rawData));
                 return '更新订单信息失败' . $exception->getMessage();
             }
             $ret = $this->paySuccess($gxOrder);
             if ($ret->isFail()) {
                 // 只记录这个
-                $this->logger->error('[支付回调] 处理订单失败' . $ret->getMsg());
+                $this->logger->error('[支付回调] 处理订单失败' . $ret->getMsg().($rawData));
             }
             return $payInstance->getSuccessStr();
         } catch (Exception $e) {
