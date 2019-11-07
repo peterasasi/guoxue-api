@@ -105,7 +105,7 @@ class UserLoginSessionController extends BaseNeedLoginController
             $map['username'] = ['like', '%'.$username . '%'];
         }
 
-        $ret = $this->userAccountService->queryAndCount($map, $pagingParams, ['id' => 'desc'], ["id", "mobile", "country_no", "create_time", "project_id", "create_time", "last_login_time"]);
+        $ret = $this->userAccountService->queryAndCount($map, $pagingParams, ['id' => 'desc'], ["id", "username", "mobile", "country_no", "create_time", "project_id", "create_time", "last_login_time"]);
         if ($ret instanceof CallResult) {
             if ($ret->isFail()) return $ret;
             $data = $ret->getData();
