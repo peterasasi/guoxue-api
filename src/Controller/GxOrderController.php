@@ -50,6 +50,9 @@ class GxOrderController extends BaseNeedLoginController
     public function upgradeToVip($level, $jumpUrl = '') {
         $this->checkLogin();
         $level = intval($level);
+        if ($level == 10) {
+            return '目前无法升到该级别';
+        }
         if ($level < 1 || $level > 10) {
             return '升级的VIP等级无效';
         }
