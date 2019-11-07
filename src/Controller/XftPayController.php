@@ -12,6 +12,7 @@ use App\ServiceInterface\GxOrderServiceInterface;
 use App\ServiceInterface\PlatformWalletServiceInterface;
 use App\ServiceInterface\ProfitGraphServiceInterface;
 use App\ServiceInterface\UserWalletServiceInterface;
+use App\ServiceInterface\XftMerchantServiceInterface;
 use by\component\string_extend\helper\StringHelper;
 use by\component\usdt_pay\UsdtPay;
 use by\component\xft_pay\NotifyParams;
@@ -93,16 +94,6 @@ class XftPayController extends AbstractController
             }
 
             $payInstance = new XftPay();
-            $signVerifyOpen = ByEnv::get('SIGN_VERIFY_OPEN');
-            if (!empty($signVerifyOpen) && $signVerifyOpen == 1) {
-                $all = $rawData;
-                unset($all['sign']);
-                $localSign = SignTool::sign($all, $payInstance->getConfig());
-                if (!($localSign === $np->getSign())) {
-                    $this->logger->error('[支付回调签名失败]');
-                    return 'verify sign fail';
-                }
-            }
 
             $gxOrder = $this->gxOrderService->info(['order_no' => $np->getOutTradeNo()]);
             if (!$gxOrder instanceof GxOrder) {
@@ -120,6 +111,28 @@ class XftPayController extends AbstractController
                 $gxOrder->setExceptionMsg($gxOrder->getExceptionMsg() . '[state]' . $np->getState());
                 $this->gxOrderService->flush($gxOrder);
                 return 'order failed';
+            }
+
+            $signVerifyOpen = ByEnv::get('SIGN_VERIFY_OPEN');
+            if (!empty($signVerifyOpen) && $signVerifyOpen == 1) {
+                $payConfig = json_decode($gxOrder->getPayConfig(), JSON_OBJECT_AS_ARRAY);
+                if (is_array($payConfig)) {
+                    $payInstance->getConfig()->setMerchantCode($payConfig['code']);
+                    $payInstance->getConfig()->setClientIp($payConfig['client_ip']);
+                    $payInstance->getConfig()->setNotifyUrl($payConfig['notify_url']);
+                    $payInstance->getConfig()->setKey($payConfig['key']);
+                    $payInstance->getConfig()->setAppId($payConfig['app_id']);
+                } else {
+                    $this->logger->error('[支付回调签名失败]订单缺少支付信息');
+                    return 'verify sign fail';
+                }
+                $all = $rawData;
+                unset($all['sign']);
+                $localSign = SignTool::sign($all, $payInstance->getConfig());
+                if (!($localSign === $np->getSign())) {
+                    $this->logger->error('[支付回调签名失败]');
+                    return 'verify sign fail';
+                }
             }
 
             $wallet = $this->userWalletService->info(['uid' => $gxOrder->getUid()]);

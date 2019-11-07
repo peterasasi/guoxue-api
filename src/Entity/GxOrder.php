@@ -128,6 +128,11 @@ class GxOrder extends BaseEntity
      */
     private $extraAmount;
 
+    /**
+     * @ORM\Column(type="string", length=512)
+     */
+    private $payConfig;
+
     public function __construct()
     {
         parent::__construct();
@@ -399,6 +404,18 @@ class GxOrder extends BaseEntity
     public function setExtraAmount($extraAmount): self
     {
         $this->extraAmount = $extraAmount;
+
+        return $this;
+    }
+
+    public function getPayConfig(): ?string
+    {
+        return $this->payConfig;
+    }
+
+    public function setPayConfig(string $payConfig): self
+    {
+        $this->payConfig = $payConfig;
 
         return $this;
     }
