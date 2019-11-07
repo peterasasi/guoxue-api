@@ -76,9 +76,10 @@ class GxPayController extends AbstractController
      * @return int
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    protected function getPayWay($projectId) {
+    protected function getPayWay($projectId)
+    {
         $item = $this->cacheItemPool->getItem(CacheKeys::GxPayWay);
-        if  ($item->isHit()) {
+        if ($item->isHit()) {
             $payWay = intval($item->get());
         } else {
             $payWay = -1;
@@ -190,23 +191,24 @@ class GxPayController extends AbstractController
         return $this->render('gxpay/show.html.twig', ['url' => ByEnv::get('H5_ENTRY'), 'total_amount' => '', 'order_no' => '']);
     }
 
-    protected function getXftConfig() {
+    protected function getXftConfig()
+    {
 
-        $item = $this->cacheItemPool->getItem(CacheKeys::GxXftPayConfig);
-        if  ($item->isHit()) {
-            $cfg = @json_decode($item->get(), JSON_OBJECT_AS_ARRAY);
-        } else {
-            $list = $this->xftMerchantService->queryAllBy(['enable' => StatusEnum::ENABLE], ['id' => 'desc']);
-            if (!is_array($list) || count($list) == 0) {
-                return null;
-            }
-            $validCnt = count($list);
-            $r = rand(0, $validCnt - 1);
-            $cfg = $list[$r];
-            $item->set(json_encode($cfg));
-            $item->expiresAfter(CacheKeys::getExpireTime(CacheKeys::GxXftPayConfig));
-            $this->cacheItemPool->save($item);
+//        $item = $this->cacheItemPool->getItem(CacheKeys::GxXftPayConfig);
+//        if  ($item->isHit()) {
+//            $cfg = @json_decode($item->get(), JSON_OBJECT_AS_ARRAY);
+//        } else {
+        $list = $this->xftMerchantService->queryAllBy(['enable' => StatusEnum::ENABLE], ['id' => 'desc']);
+        if (!is_array($list) || count($list) == 0) {
+            return null;
         }
+        $validCnt = count($list);
+        $r = rand(0, $validCnt - 1);
+        $cfg = $list[$r];
+//            $item->set(json_encode($cfg));
+//            $item->expiresAfter(CacheKeys::getExpireTime(CacheKeys::GxXftPayConfig));
+//            $this->cacheItemPool->save($item);
+//        }
 
         $xftPay = new XftPay();
         $xftPay->getConfig()->setAppId($cfg['app_id']);
@@ -243,7 +245,7 @@ class GxPayController extends AbstractController
             if (is_null($xftPay)) {
                 return $this->render('gxpay/error.html.twig', ['msg' => '支付通道未配置']);
             }
-            $ret = $xftPay->getPayUrl($gxOrder->getOrderNo(), intval($amount * 100), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId(), 'VIPITEM'.$gxOrder->getVipItemId());
+            $ret = $xftPay->getPayUrl($gxOrder->getOrderNo(), intval($amount * 100), 'VIPITEM' . $gxOrder->getVipItemId(), 'VIPITEM' . $gxOrder->getVipItemId(), 'VIPITEM' . $gxOrder->getVipItemId());
             if ($ret->isFail()) {
                 $this->xftMerchantService->incFailCnt($this->xftCfgId);
                 return $this->render('gxpay/error.html.twig', ['msg' => $ret->getMsg()]);
