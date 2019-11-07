@@ -283,7 +283,8 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                 $this->getEntityManager()->rollback();
                 return CallResultHelper::fail('当前用户等级大于升级的等级,订单' . $gxOrder->getId() . '处理失败');
             }
-            $amount = $gxOrder->getAmount();
+            // 扣除补充的 和 手续费
+            $amount = $gxOrder->getAmount() - $gxOrder->getExtraAmount();
             $fee = $gxOrder->getFee();
 
             $note = '订单' . $gxOrder->getId() . ':VIP' . $profitGraph->getVipLevel() . '升级到VIP' . $vipLevel . '费用的手续费' . $fee . '元';
