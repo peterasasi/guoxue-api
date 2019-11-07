@@ -217,13 +217,6 @@ class GxOrderController extends BaseNeedLoginController
             return 'already processed';
         }
 
-        if ($np->getState() != '00') {
-            // 订单未支付成功 记录订单状态到异常
-            $gxOrder->setExceptionMsg($gxOrder->getExceptionMsg() . '[state]' . $np->getState());
-            $this->gxOrderService->flush($gxOrder);
-            return 'order failed';
-        }
-
         $wallet = $this->userWalletService->info(['uid' => $gxOrder->getUid()]);
         if (!$wallet instanceof UserWallet) {
             $this->logger->error('用户' . $gxOrder->getUid() . '的钱包不存在');
