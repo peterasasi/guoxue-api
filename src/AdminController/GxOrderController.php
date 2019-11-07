@@ -238,7 +238,7 @@ class GxOrderController extends BaseNeedLoginController
 
                 $gxOrder->setPayStatus(GxOrder::Paid);
                 $gxOrder->setPaidTime(time());
-                $gxOrder->setArrivalAmount(StringHelper::numberFormat($gxOrder->getAmount() / 100, 2));
+                $gxOrder->setArrivalAmount($gxOrder->getAmount());
                 $gxOrder->setSign('');
                 $gxOrder->setPayRetOrderId($outTradeNo);
                 $gxOrder->setMerchantCode('');
