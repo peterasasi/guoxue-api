@@ -141,6 +141,7 @@ class XftPayController extends AbstractController
                 $gxOrder->setArrivalAmount(StringHelper::numberFormat($np->getAmount() / 100, 2));
                 $gxOrder->setSign($np->getSign());
                 $gxOrder->setPayRetOrderId($np->getThirdTradeNo());
+                $gxOrder->setMerchantCode($np->getMerchantCode());
                 $gxOrder->setPw(PayWayConst::PW002);
 
                 $note = '充值了' . $gxOrder->getAmount() . '元';
