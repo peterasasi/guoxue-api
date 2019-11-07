@@ -40,6 +40,15 @@ class GxOrderController extends BaseNeedLoginController
         $this->profitGraphService = $profitGraphService;
     }
 
+    public function canUpgrade() {
+        $pg = $this->profitGraphService->info(['uid' => $this->getUid()]);
+        if ($pg instanceof ProfitGraph) {
+            $level = $pg->getVipLevel();
+            $cnt = $this->profitGraphService->count(['parent_uid' => $this->getUid(), 'vip_level' => ['gte', intval($level)]]);
+            return CallResultHelper::success($cnt);
+        }
+        return CallResultHelper::fail();
+    }
 
     protected function checkCanUpgrade($level, $uid)
     {
