@@ -35,7 +35,8 @@ class UserInfoDto
 //    protected $sign;
 //    protected $bgImg;
     protected $idcode;
-//    protected $inviteUid;
+    protected $inviteUid;
+    protected $inviteUsername;
 //    protected $exp;
 //    protected $realname;
     protected $idValidate;
@@ -75,6 +76,40 @@ class UserInfoDto
         $this->setUserProfile($userAccount->getProfile());
         $this->setPwdIsSet($userAccount->getPasswordSet());
         $this->setFrozenWithdraw($userAccount->getProfile()->getFrozenWithdraw());
+        $this->setInviteUid($userAccount->getProfile()->getInviteUid());
+        $this->setInviteUsername('');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInviteUsername()
+    {
+        return $this->inviteUsername;
+    }
+
+    /**
+     * @param mixed $inviteUsername
+     */
+    public function setInviteUsername($inviteUsername): void
+    {
+        $this->inviteUsername = $inviteUsername;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInviteUid()
+    {
+        return $this->inviteUid;
+    }
+
+    /**
+     * @param mixed $inviteUid
+     */
+    public function setInviteUid($inviteUid): void
+    {
+        $this->inviteUid = $inviteUid;
     }
 
     /**

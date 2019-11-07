@@ -60,6 +60,11 @@ class UserController extends BaseNeedLoginController
             if ($userWallet instanceof UserWallet) {
                 $dto->setWallet($userWallet);
             }
+            $inviteUid = $userAccount->getProfile()->getInviteUid();
+            $inviteUser =   $this->userAccountService->info(['id' => $inviteUid]);
+            if ($inviteUser instanceof UserAccount) {
+                $dto->setInviteUsername($inviteUser->getUsername());
+            }
             return CallResultHelper::success($dto);
         }
 
