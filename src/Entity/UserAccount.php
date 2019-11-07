@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * UserAccount
  *
- * @ORM\Table(name="user_account", uniqueConstraints={@ORM\UniqueConstraint(name="app_id", columns={"project_id", "username"}), @ORM\UniqueConstraint(name="app_id_2", columns={"project_id", "mobile", "country_no", "mobile_auth"})})
+ * @ORM\Table(name="user_account", uniqueConstraints={@ORM\UniqueConstraint(name="app_id", columns={"project_id", "username"})})
  * @ORM\Entity
  */
 class UserAccount extends BaseEntity implements UserInterface, UserAccountInterface
