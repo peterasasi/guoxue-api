@@ -101,7 +101,7 @@ class UserLoginSessionController extends BaseNeedLoginController
         $map = [
             'status' => 1
         ];
-        if (!empty($mobile)) {
+        if (!empty($username)) {
             $map['username'] = ['like', '%'.$username . '%'];
         }
 
