@@ -149,6 +149,7 @@ class GxOrder extends BaseEntity
         $this->setShowJumpUrl('');
         $this->setPw(PayWayConst::PW000);
         $this->setMerchantCode('');
+        $this->setPayConfig('');
     }
 
     public function getId(): ?int
