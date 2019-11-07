@@ -35,10 +35,10 @@ class UserWalletController extends BaseNeedLoginController
      * @return mixed
      * @throws \by\component\exception\NotLoginException
      */
-    public function queryLogHistory(PagingParams $pagingParams)
+    public function queryLogHistory($userId, PagingParams $pagingParams)
     {
         $this->checkLogin();
-        return $this->logService->queryAndCount(['uid' => $this->getUid()], $pagingParams, ["id" => "desc"]);
+        return $this->logService->queryAndCount(['uid' => $userId], $pagingParams, ["id" => "desc"]);
     }
 
 }
