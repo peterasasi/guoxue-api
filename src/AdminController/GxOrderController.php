@@ -70,7 +70,7 @@ class GxOrderController extends BaseNeedLoginController
      * @return CallResult|string
      * @throws NotLoginException
      */
-    public function query(PagingParams $pagingParams, $payStatus = 0, $mobile = '', $orderNo = '') {
+    public function query(PagingParams $pagingParams, $payStatus = 0, $username = '', $orderNo = '') {
         $this->checkLogin();
         $map = [];
 
@@ -80,8 +80,8 @@ class GxOrderController extends BaseNeedLoginController
         if (!empty($orderNo)) {
             $map['order_no'] = ['like', '%'.$orderNo.'%'];
         }
-        if (!empty($mobile)) {
-            $ua = $this->userAccountService->info(['mobile' => $mobile]);
+        if (!empty($username)) {
+            $ua = $this->userAccountService->info(['username' => $username, 'project_id' => $this->getProjectId()]);
             if ($ua instanceof UserAccount) {
                 $map['uid'] = $ua->getId();
             }
