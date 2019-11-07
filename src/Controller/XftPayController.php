@@ -19,6 +19,7 @@ use by\component\xft_pay\NotifyParams;
 use by\component\xft_pay\SignTool;
 use by\component\xft_pay\XftPay;
 use by\infrastructure\base\CallResult;
+use by\infrastructure\helper\CallResultHelper;
 use Dbh\SfCoreBundle\Common\ByEnv;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\OptimisticLockException;
@@ -97,7 +98,7 @@ class XftPayController extends AbstractController
 
             $gxOrder = $this->gxOrderService->info(['order_no' => $np->getOutTradeNo()]);
             if (!$gxOrder instanceof GxOrder) {
-                $this->logger->error('[订单号不存在]'.($rawData));
+                $this->logger->error('[订单号不存在]' . ($rawData));
                 return 'out_order_id not exists';
             }
 
@@ -123,21 +124,21 @@ class XftPayController extends AbstractController
                     $payInstance->getConfig()->setKey($payConfig['key']);
                     $payInstance->getConfig()->setAppId($payConfig['app_id']);
                 } else {
-                    $this->logger->error('[支付回调签名失败]订单缺少支付信息'.($rawData));
+                    $this->logger->error('[支付回调签名失败]订单缺少支付信息' . ($rawData));
                     return 'verify sign fail';
                 }
                 $all = $rawData;
                 unset($all['sign']);
                 $localSign = SignTool::sign($all, $payInstance->getConfig());
                 if (!($localSign === $np->getSign())) {
-                    $this->logger->error('[支付回调签名失败]'.($rawData));
+                    $this->logger->error('[支付回调签名失败]' . ($rawData));
                     return 'verify sign fail';
                 }
             }
 
             $wallet = $this->userWalletService->info(['uid' => $gxOrder->getUid()]);
             if (!$wallet instanceof UserWallet) {
-                $this->logger->error('用户' . $gxOrder->getUid() . '的钱包不存在'.($rawData));
+                $this->logger->error('用户' . $gxOrder->getUid() . '的钱包不存在' . ($rawData));
                 return '用户' . $gxOrder->getUid() . '的钱包不存在';
             }
 
@@ -168,13 +169,13 @@ class XftPayController extends AbstractController
                 $this->gxOrderService->getEntityManager()->commit();
             } catch (Exception $exception) {
                 $this->gxOrderService->getEntityManager()->rollback();
-                $this->logger->error('[支付回调] 更新订单信息失败' . $exception->getMessage().($rawData));
+                $this->logger->error('[支付回调] 更新订单信息失败' . $exception->getMessage() . ($rawData));
                 return '更新订单信息失败' . $exception->getMessage();
             }
             $ret = $this->paySuccess($gxOrder);
             if ($ret->isFail()) {
                 // 只记录这个
-                $this->logger->error('[支付回调] 处理订单失败' . $ret->getMsg().($rawData));
+                $this->logger->error('[支付回调] 处理订单失败' . $ret->getMsg() . ($rawData));
             }
             return $payInstance->getSuccessStr();
         } catch (Exception $e) {
@@ -183,12 +184,85 @@ class XftPayController extends AbstractController
         }
     }
 
+    public function repair(Request $request)
+    {
+
+
+        $outTradeNo = $request->get('order_no');
+        $outTradeNo = $request->get('out_order_no');
+
+
+        $gxOrder = $this->gxOrderService->info(['order_no' => $outTradeNo]);
+        if (!$gxOrder instanceof GxOrder) {
+            $this->logger->error('[订单号不存在]');
+            return 'out_order_id not exists';
+        }
+
+        if ($gxOrder->getPayStatus() != GxOrder::PayInitial) {
+            $this->logger->error('[支付回调] 已处理订单' . $gxOrder->getOrderNo());
+            return 'already processed';
+        }
+
+        if ($np->getState() != '00') {
+            // 订单未支付成功 记录订单状态到异常
+            $gxOrder->setExceptionMsg($gxOrder->getExceptionMsg() . '[state]' . $np->getState());
+            $this->gxOrderService->flush($gxOrder);
+            return 'order failed';
+        }
+
+        $wallet = $this->userWalletService->info(['uid' => $gxOrder->getUid()]);
+        if (!$wallet instanceof UserWallet) {
+            $this->logger->error('用户' . $gxOrder->getUid() . '的钱包不存在');
+            return '用户' . $gxOrder->getUid() . '的钱包不存在';
+        }
+
+        $this->gxOrderService->getEntityManager()->beginTransaction();
+        try {
+            $this->gxOrderService->findById($gxOrder->getId(), LockMode::PESSIMISTIC_READ);
+            if ($gxOrder->getPayStatus() == GxOrder::Paid) {
+                $this->gxOrderService->getEntityManager()->rollback();
+                $this->logger->error('[支付回调] 订单已处理' . $gxOrder->getOrderNo());
+                return 'already processed';
+            }
+            $gxOrder->setPayStatus(GxOrder::Paid);
+            $gxOrder->setPaidTime(time());
+            $gxOrder->setArrivalAmount(StringHelper::numberFormat($gxOrder->getAmount() / 100, 2));
+            $gxOrder->setSign('');
+            $gxOrder->setPayRetOrderId($outTradeNo);
+            $gxOrder->setMerchantCode('');
+            $gxOrder->setPw(PayWayConst::PW002);
+            $gxOrder->setRemark($gxOrder->getRemark().'[补单]');
+
+            $note = '充值了' . $gxOrder->getAmount() . '元';
+            $this->userWalletService->deposit($wallet->getId(), $gxOrder->getAmount() * 100, $note);
+
+            $note = '购买VIP' . $gxOrder->getVipItemId() . '支出了' . ($gxOrder->getAmount() - $gxOrder->getExtraAmount()) . '元';
+            $this->userWalletService->withdraw($wallet->getId(), ($gxOrder->getAmount() - $gxOrder->getExtraAmount()) * 100, $note);
+
+
+            $this->gxOrderService->flush($gxOrder);
+            $this->gxOrderService->getEntityManager()->commit();
+        } catch (Exception $exception) {
+            $this->gxOrderService->getEntityManager()->rollback();
+            $this->logger->error('[支付回调] 更新订单信息失败' . $exception->getMessage());
+            return '更新订单信息失败' . $exception->getMessage();
+        }
+        $ret = $this->paySuccess($gxOrder);
+        if ($ret->isFail()) {
+            // 只记录这个
+            $this->logger->error('[支付回调] 处理订单失败' . $ret->getMsg());
+        }
+
+        return CallResultHelper::success();
+    }
+
     /**
      * @param GxOrder $gxOrder
      * @return CallResult
      * @throws Exception
      */
-    protected function paySuccess(GxOrder $gxOrder)
+    protected
+    function paySuccess(GxOrder $gxOrder)
     {
         $this->gxConfig->init($gxOrder->getProjectId());
         // 完成支付后依据订单类型进行分类处理

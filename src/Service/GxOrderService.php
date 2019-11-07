@@ -14,4 +14,8 @@ class GxOrderService extends BaseService implements GxOrderServiceInterface
     {
         $this->repo = $repository;
     }
+
+    public function repairPaid() {
+
+    }
 }
