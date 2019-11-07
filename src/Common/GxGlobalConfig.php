@@ -12,7 +12,7 @@ use Psr\Cache\CacheItemPoolInterface;
 class GxGlobalConfig
 {
     const VIP1_HALF = 200;//vip1 一半的钱
-    const InviteMinUsers = 3;
+    const InviteMinUsers = 0;// 不用邀请人
     const ConfigName = "gx_config";
     const ConfigCacheKey = "cache_".self::ConfigName;
     const ConfigCacheTime = 3600;
