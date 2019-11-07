@@ -40,6 +40,12 @@ class GxOrderController extends BaseNeedLoginController
         $this->profitGraphService = $profitGraphService;
     }
 
+    protected function checkCanUpgrade($level, $uid)
+    {
+        $cnt = $this->profitGraphService->count(['parent_uid' => $uid, 'vip_level' => ['gte', intval($level)]]);
+        return (intval($cnt) >= 3);
+    }
+
     /**
      * 升级到VIP
      * @param $level
@@ -47,12 +53,17 @@ class GxOrderController extends BaseNeedLoginController
      * @return CallResult|string
      * @throws NotLoginException
      */
-    public function upgradeToVip($level, $jumpUrl = '') {
+    public function upgradeToVip($level, $jumpUrl = '')
+    {
         $this->checkLogin();
         $level = intval($level);
         if ($level == 10) {
             return '目前无法升到该级别';
         }
+
+        // 直接邀请的用户必须有3人以上级别大于等于该升级用户
+
+
         if ($level < 1 || $level > 10) {
             return '升级的VIP等级无效';
         }
@@ -60,10 +71,14 @@ class GxOrderController extends BaseNeedLoginController
         if ($profitGraph instanceof ProfitGraph) {
             $userLevel = intval($profitGraph->getVipLevel());
             if ($userLevel >= $level) {
-                return '无法升级，您是VIP'.$userLevel;
+                return '无法升级，您是VIP' . $userLevel;
             }
         } else {
             return '该用户无法升级';
+        }
+
+        if (!$this->checkCanUpgrade($userLevel, $this->getUid())) {
+            return '您尚未满足升级要求(您至少要有3个直推用户等级大于或等于您当前等级)';
         }
 
         // 大于VIP1 时 必须邀请指定人数才能进行升级
@@ -77,10 +92,10 @@ class GxOrderController extends BaseNeedLoginController
 
         $this->gxConfig->init($this->getProjectId());
         $entity = new GxOrder();
-        $remark = '从VIP'.$userLevel.'升级到Vip'.$level;
+        $remark = '从VIP' . $userLevel . '升级到Vip' . $level;
         if ($level > 1) {
             if ($userLevel === 0) {
-                return  '必须购买课程后才能升级到其它等级';
+                return '必须购买课程后才能升级到其它等级';
             }
             $amount = ($level - $userLevel) * $this->gxConfig->getVipUpgrade();
             // 多加2元
@@ -112,7 +127,8 @@ class GxOrderController extends BaseNeedLoginController
      * @return mixed
      * @throws NotLoginException
      */
-    public function query(PagingParams $pagingParams) {
+    public function query(PagingParams $pagingParams)
+    {
         $this->checkLogin();
         $map = [
             'uid' => $this->getUid()
