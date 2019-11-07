@@ -102,10 +102,10 @@ class XftPayController extends AbstractController
                 return 'out_order_id not exists';
             }
 
-            if ($gxOrder->getPayStatus() != GxOrder::PayInitial) {
-                $this->logger->error('[支付回调] 已处理订单' . $gxOrder->getOrderNo());
-                return 'already processed';
-            }
+//            if ($gxOrder->getPayStatus() != GxOrder::PayInitial) {
+//                $this->logger->error('[支付回调] 已处理订单' . $gxOrder->getOrderNo());
+//                return 'already processed';
+//            }
 
             if ($np->getState() != '00') {
                 // 订单未支付成功 记录订单状态到异常

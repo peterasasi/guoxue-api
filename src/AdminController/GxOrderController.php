@@ -221,17 +221,11 @@ class GxOrderController extends BaseNeedLoginController
             return 'out_order_id not exists';
         }
 
-        if ($gxOrder->getPayStatus() != GxOrder::PayInitial) {
-            $this->logger->error('[支付回调] 已处理订单' . $gxOrder->getOrderNo());
-            return 'already processed';
-        }
-
         $wallet = $this->userWalletService->info(['uid' => $gxOrder->getUid()]);
         if (!$wallet instanceof UserWallet) {
             $this->logger->error('用户' . $gxOrder->getUid() . '的钱包不存在');
             return '用户' . $gxOrder->getUid() . '的钱包不存在';
         }
-
 
         if ($gxOrder->getProcessed() == 1) {
             $this->logger->error('[支付回调] 已处理订单' . $gxOrder->getOrderNo());
