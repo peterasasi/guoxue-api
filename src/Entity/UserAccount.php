@@ -50,7 +50,7 @@ class UserAccount extends BaseEntity implements UserInterface, UserAccountInterf
      * @Assert\Regex(
      *     pattern="/^[a-zA-Z]{1}([a-zA-Z0-9_]){5,24}$/i",
      *     match=true,
-     *     message="username length must between 6,16;the first char must be a alpha."
+     *     message="用户名长度必须6-16,限定英文大小写数字,首字母必须是字母"
      * )
      *
      * @var string
@@ -61,9 +61,9 @@ class UserAccount extends BaseEntity implements UserInterface, UserAccountInterf
     /**
      * @Assert\NotBlank()
      * @Assert\Regex(
-     *     pattern="/^[a-zA-Z0-9_!@#$%^&*()_+-=\[\]{}|;:,.<>]{8,24}$/i",
+     *     pattern="/^[a-zA-Z0-9_!@#$%^&*()_+-=\[\]{}|;:,.<>]{6,24}$/i",
      *     match=true,
-     *     message="password length must between 8,24 and can only be used in alphanumeric and special characters(_!@#$%^&*()_+-=[]{}|;:,.<>)."
+     *     message="密码长度6-24位password length must between 6,24 and can only be used in alphanumeric and special characters(_!@#$%^&*()_+-=[]{}|;:,.<>)."
      * )
      * @var string
      *
