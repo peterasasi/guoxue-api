@@ -87,9 +87,9 @@ class GxOrderController extends BaseNeedLoginController
             return '该用户无法升级';
         }
 
-        if (!$this->checkCanUpgrade($userLevel, $this->getUid())) {
-            return '您尚未满足升级要求(您至少要有3个直推用户等级大于或等于您当前等级)';
-        }
+//        if (!$this->checkCanUpgrade($userLevel, $this->getUid())) {
+//            return '您尚未满足升级要求(您至少要有3个直推用户等级大于或等于您当前等级)';
+//        }
 
         // 大于VIP1 时 必须邀请指定人数才能进行升级
         if ($level > 1 && $profitGraph->getActive() !== 1) {
