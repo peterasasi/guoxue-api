@@ -91,7 +91,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                     $vMax = $vo['uid'];
                     $vMaxIncome = $vo['total_income'];
                 }
-                if ($parentVipUid === 0 && $vo['vip_level'] >= $curVipLevel + 2) {
+                if ($parentVipUid === 0 && $vo['vip_level'] > $curVipLevel) {
                     $parentVipUid = $vo['uid'];
                     $parentIncome = $vo['total_income'];
                 }
