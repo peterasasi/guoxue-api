@@ -84,6 +84,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         $parentVipUid = 0;
         $vMaxIncome = 0;
         $parentIncome = 0;
+
         foreach ($pgList as $vo) {
             if ($vo['active'] === 1) {
                 if ($vMax === 0 && $vo['vip_level'] == self::MaxVip) {
@@ -113,10 +114,11 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         if (empty($family)) return [];
         $family = explode(",", rtrim($family, ','));
         $fields = ["uid", "vip_level", "active", "total_income"];
-        $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['id' => 'desc'], $fields);
+        $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['uid' => 'asc'], $fields);
         $parentsUid = [];
 
-        for ($i = $curLevel + 1; $i <= $toLevel; $i++) {
+        // 跳级给
+        for ($i = $curLevel + 2; $i <= $toLevel; $i++) {
             $parentsUid[$i - 1 - $curLevel] = 0;
             foreach ($pgList as $vo) {
                 if ($vo['active'] === 1) {
