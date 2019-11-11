@@ -123,7 +123,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
             $parentsUid[$i] = 0;
             foreach ($pgList as $vo) {
                 if ($vo['active'] === 1) {
-                    if ($parentsUid[$i] === 0 && $vo['vip_level'] >= $i) {
+                    if ($parentsUid[$i] === 0 && $vo['vip_level'] >= $curLevel + 2 + $i) {
                         if ($vo['total_income'] < $this->maxIncome) {
                             // 如果小于限制的收益金额
                             $parentsUid[$i] = intval($vo['uid']);
