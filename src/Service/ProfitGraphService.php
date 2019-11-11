@@ -109,6 +109,13 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         return [intval($parentVipUid), intval($vMax)];
     }
 
+    /**
+     * 查找当前级别 2级以上
+     * @param $curLevel
+     * @param $toLevel
+     * @param $family
+     * @return array
+     */
     public function getParentsUid($curLevel, $toLevel, $family) {
         // $curLevel + 1,  $toLevel 这个区间的vip
         if (empty($family)) return [];
