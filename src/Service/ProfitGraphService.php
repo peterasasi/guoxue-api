@@ -126,7 +126,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                     if ($parentsUid[$i - 2 - $curLevel] === 0 && $vo['vip_level'] == $i) {
                         if ($vo['total_income'] < $this->maxIncome) {
                             // 如果小于限制的收益金额
-                            $parentsUid[$i - 2 - $curLevel] = $vo['uid'];
+                            $parentsUid[$i - 2 - $curLevel] = intval($vo['uid']);
                         }
                     }
                 }
