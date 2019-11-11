@@ -120,13 +120,13 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
 
         // 跳级给
         for ($i = $curLevel + 2; $i <= $toLevel; $i++) {
-            $parentsUid[$i - 1 - $curLevel] = 0;
+            $parentsUid[$i - 2 - $curLevel] = 0;
             foreach ($pgList as $vo) {
                 if ($vo['active'] === 1) {
-                    if ($parentsUid[$i - 1 - $curLevel] === 0 && $vo['vip_level'] == $i) {
+                    if ($parentsUid[$i - 2 - $curLevel] === 0 && $vo['vip_level'] == $i) {
                         if ($vo['total_income'] < $this->maxIncome) {
                             // 如果小于限制的收益金额
-                            $parentsUid[$i - 1 - $curLevel] = $vo['uid'];
+                            $parentsUid[$i - 2 - $curLevel] = $vo['uid'];
                         }
                     }
                 }
