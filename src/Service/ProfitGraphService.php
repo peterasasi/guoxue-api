@@ -118,11 +118,11 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['uid' => 'asc'], $fields);
         $parentsUid = [];
 
-        // 跳级给
         for ($i = 0; $i < ($toLevel - $curLevel) ; $i++) {
             $parentsUid[$i] = 0;
             foreach ($pgList as $vo) {
                 if ($vo['active'] === 1) {
+                    // 查找等级大于 当前2以上
                     if ($parentsUid[$i] === 0 && $vo['vip_level'] >= $curLevel + 2 + $i) {
                         if ($vo['total_income'] < $this->maxIncome) {
                             // 如果小于限制的收益金额
