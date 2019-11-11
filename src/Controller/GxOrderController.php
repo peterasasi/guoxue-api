@@ -8,6 +8,7 @@ use App\Common\GxGlobalConfig;
 use App\Entity\GxOrder;
 use App\Entity\ProfitGraph;
 use App\Helper\CodeGenerator;
+use App\Helper\UserVip;
 use App\ServiceInterface\GxOrderServiceInterface;
 use App\ServiceInterface\ProfitGraphServiceInterface;
 use by\component\exception\NotLoginException;
@@ -81,7 +82,7 @@ class GxOrderController extends BaseNeedLoginController
         if ($profitGraph instanceof ProfitGraph) {
             $userLevel = intval($profitGraph->getVipLevel());
             if ($userLevel >= $level) {
-                return '无法升级，您是VIP' . $userLevel;
+                return '无法升级，您已经是VIP' . (UserVip::level($userLevel));
             }
         } else {
             return '该用户无法升级';
@@ -102,7 +103,7 @@ class GxOrderController extends BaseNeedLoginController
 
         $this->gxConfig->init($this->getProjectId());
         $entity = new GxOrder();
-        $remark = '从VIP' . $userLevel . '升级到Vip' . $level;
+        $remark = '从VIP' . UserVip::level($userLevel) . '升级到Vip' . UserVip::level($level);
         if ($level > 1) {
             if ($userLevel === 0) {
                 return '必须购买课程后才能升级到其它等级';
