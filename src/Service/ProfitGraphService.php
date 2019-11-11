@@ -9,6 +9,7 @@ use App\Entity\GxOrder;
 use App\Entity\PlatformWallet;
 use App\Entity\ProfitGraph;
 use App\Entity\UserWallet;
+use App\Helper\UserVip;
 use App\Repository\ProfitGraphRepository;
 use App\ServiceInterface\GxOrderServiceInterface;
 use App\ServiceInterface\PlatformWalletServiceInterface;
@@ -148,7 +149,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
 
         $profitGraph = $this->info(['uid' => $uid]);
         if (!$profitGraph instanceof ProfitGraph) return CallResultHelper::fail('用户信息缺失利润图');
-        if (intval($profitGraph->getVipLevel()) !== 0) return CallResultHelper::fail('该用户不是vip0,无法升级到VIP1');
+        if (intval($profitGraph->getVipLevel()) !== 0) return CallResultHelper::fail('该用户已经是VIP0');
 
         // 平台总利润
         $total = $gxGlobalConfig->getPlatformFixedProfit();
@@ -184,7 +185,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
             $payFee = $gxOrder->getFee();
             // 扣除手续费
             $total -= $payFee;
-            $note = '升级VIP1订单' . $gxOrder->getId() . '增加手续费' . $payFee . '元';
+            $note = '升级VIP0订单' . $gxOrder->getId() . '增加手续费' . $payFee . '元';
             $this->platformWalletService->addMoneyTo($payFeeWallet->getId(), $payFee, $note);
             $balanceProfitRatio = 100;
             foreach ($otherWallets as $wlt) {
@@ -192,7 +193,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                     $balanceProfitRatio -= $wlt['profit_ratio'];
                     $ratio = StringHelper::numberFormat($wlt['profit_ratio'] / 100, 2);
                     $money = StringHelper::numberFormat($total * $ratio, 3);
-                    $note = '升级VIP1订单' . $gxOrder->getId() . '增加' . $wlt['type_no'] . '余额' . $money . '元';
+                    $note = '升级VIP0订单' . $gxOrder->getId() . '增加' . $wlt['type_no'] . '余额' . $money . '元';
                     $this->platformWalletService->addMoneyTo($wlt['id'], $money, $note);
                 }
             }
@@ -202,7 +203,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
             } else {
                 // 余额钱包
                 $money = $total * StringHelper::numberFormat($balanceProfitRatio / 100, 2);
-                $note = '升级VIP1订单' . $gxOrder->getId() . '增加平台总余额' . $money . '元';
+                $note = '升级VIP0订单' . $gxOrder->getId() . '增加平台总余额' . $money . '元';
                 $this->platformWalletService->addMoneyTo($balanceWallet->getId(), $money, $note);
             }
 
@@ -210,7 +211,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
             $money = self::VipParentUpgradeProfit;
             if ($parentVipUid <= 0) {
                 // 给予平台 余额钱包
-                $note = '[无上级截留]升级VIP1订单' . $gxOrder->getId() . '增加平台总余额' . $money . '元';
+                $note = '[无上级截留]升级VIP0订单' . $gxOrder->getId() . '增加平台总余额' . $money . '元';
                 $this->platformWalletService->addMoneyTo($balanceWallet->getId(), $money, $note);
             } else {
                 $userWallet = $this->userWalletService->info(['uid' => $parentVipUid]);
@@ -219,7 +220,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                     return CallResultHelper::fail('订单'.$orderId.'上级VipUid无效');
                 }
 
-                $note = '[佣金]下级用户'.$gxOrder->getUid().'升级VIP1增加佣金' . $money . '元';
+                $note = '[佣金]下级用户'.$gxOrder->getUid().'升级VIP0增加佣金' . $money . '元';
                 $this->userWalletService->depositCommission($userWallet->getId(), $money * 100, $note);
                 // 增加利润的收益
                 $this->addIncome($userWallet->getUid(), $money);
@@ -228,7 +229,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
             $money = self::VipMaxUpgradeProfit;
             if ($vMaxUid <= 0) {
                 // 给予平台 余额钱包
-                $note = '[VMax截留]升级VIP1订单' . $gxOrder->getId() . '增加平台总余额' . $money . '元';
+                $note = '[VMax截留]升级VIP0订单' . $gxOrder->getId() . '增加平台总余额' . $money . '元';
                 $this->platformWalletService->addMoneyTo($balanceWallet->getId(), $money, $note);
             } else {
                 $userWallet = $this->userWalletService->info(['uid' => $vMaxUid]);
@@ -236,7 +237,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                     $this->getEntityManager()->rollback();
                     return CallResultHelper::fail('订单'.$orderId.'VipMax无效');
                 }
-                $note = '[VIPMax佣金]下级用户'.$gxOrder->getUid().'升级VIP1增加佣金' . $money . '元';
+                $note = '[VIPMax佣金]下级用户'.$gxOrder->getUid().'升级VIP0增加佣金' . $money . '元';
                 $this->userWalletService->depositCommission($userWallet->getId(), $money * 100, $note);
                 // 增加利润的收益
                 $this->addIncome($userWallet->getUid(), $money);
@@ -298,7 +299,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
             $amount = $gxOrder->getAmount() - $gxOrder->getExtraAmount();
             $fee = $gxOrder->getFee();
 
-            $note = '订单' . $gxOrder->getId() . ':VIP' . $profitGraph->getVipLevel() . '升级到VIP' . $vipLevel . '费用的手续费' . $fee . '元';
+            $note = '订单' . $gxOrder->getId() . ':VIP' . UserVip::level($profitGraph->getVipLevel()) . '升级到VIP' . UserVip::level($vipLevel) . '费用的手续费' . $fee . '元';
             $this->platformWalletService->addMoneyTo($payFeeWallet->getId(), $fee, $note);
 
             // 给予升级费用
@@ -310,7 +311,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
             foreach ($parentsUid as $parentVipUid) {
                 if ($parentVipUid <= 0) {
                     // 给予平台 余额钱包
-                    $note = '[无上级截留]升级VIP' . $vipLevel . '订单' . $gxOrder->getId() . '增加平台总余额' . $amount . '元';
+                    $note = '[无上级截留]升级VIP' . UserVip::level($vipLevel) . '订单' . $gxOrder->getId() . '增加平台总余额' . $amount . '元';
                     $this->platformWalletService->addMoneyTo($balanceWallet->getId(), $amount, $note);
                 } else {
                     $userWallet = $this->userWalletService->info(['uid' => $parentVipUid]);
@@ -318,7 +319,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
                         $this->getEntityManager()->rollback();
                         return CallResultHelper::fail('订单' . $orderId . '上级VipUid无效');
                     }
-                    $note = '[VIP升级佣金]下级用户' . $gxOrder->getUid() . '升级VIP' . $vipLevel . '增加佣金' . $amount . '元';
+                    $note = '[VIP升级佣金]下级用户' . $gxOrder->getUid() . '升级VIP' . UserVip::level($vipLevel) . '增加佣金' . $amount . '元';
                     $this->userWalletService->depositCommission($userWallet->getId(), $amount * 100, $note);
                     $this->addIncome($userWallet->getUid(), $amount);
                 }
