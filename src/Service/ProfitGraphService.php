@@ -79,7 +79,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         if (empty($family)) return [0, 0];
         $family = explode(",", rtrim($family, ','));
         $fields = ["uid", "vip_level", "active", "total_income"];
-        $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['id' => 'desc'], $fields);
+        $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['uid' => 'asc'], $fields);
         $vMax = 0;
         $parentVipUid = 0;
         $vMaxIncome = 0;
@@ -119,14 +119,14 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         $parentsUid = [];
 
         // 跳级给
-        for ($i = $toLevel; $i <= self::MaxVip; $i++) {
-            $parentsUid[$i - $toLevel] = 0;
+        for ($i = 0; $i < ($toLevel - $curLevel) ; $i++) {
+            $parentsUid[$i] = 0;
             foreach ($pgList as $vo) {
                 if ($vo['active'] === 1) {
-                    if ($parentsUid[$i -$toLevel] === 0 && $vo['vip_level'] == $i) {
+                    if ($parentsUid[$i] === 0 && $vo['vip_level'] >= $i) {
                         if ($vo['total_income'] < $this->maxIncome) {
                             // 如果小于限制的收益金额
-                            $parentsUid[$i - $toLevel] = intval($vo['uid']);
+                            $parentsUid[$i] = intval($vo['uid']);
                         }
                     }
                 }
