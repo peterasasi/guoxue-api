@@ -79,7 +79,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
         if (empty($family)) return [0, 0];
         $family = explode(",", rtrim($family, ','));
         $fields = ["uid", "vip_level", "active", "total_income"];
-        $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['uid' => 'asc'], $fields);
+        $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['uid' => 'desc'], $fields);
         $vMax = 0;
         $parentVipUid = 0;
         $vMaxIncome = 0;
@@ -115,7 +115,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
 
         $family = explode(",", rtrim($family, ','));
         $fields = ["uid", "vip_level", "active", "total_income"];
-        $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['uid' => 'asc'], $fields);
+        $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['uid' => 'desc'], $fields);
         $parentsUid = [];
 
         for ($i = 0; $i < ($toLevel - $curLevel) ; $i++) {
