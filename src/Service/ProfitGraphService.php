@@ -112,21 +112,21 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
     public function getParentsUid($curLevel, $toLevel, $family) {
         // $curLevel + 1,  $toLevel 这个区间的vip
         if (empty($family)) return [];
-        $toLevel = $toLevel + 2 > 10 ? 10 : $toLevel + 2;
+        $toLevel = $toLevel + 1 > 10 ? 10 : $toLevel + 1;
         $family = explode(",", rtrim($family, ','));
         $fields = ["uid", "vip_level", "active", "total_income"];
         $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['uid' => 'asc'], $fields);
         $parentsUid = [];
 
         // 跳级给
-        for ($i = $curLevel + 2; $i <= $toLevel; $i++) {
-            $parentsUid[$i - 2 - $curLevel] = 0;
+        for ($i = $toLevel; $i <= self::MaxVip; $i++) {
+            $parentsUid[$i - $toLevel] = 0;
             foreach ($pgList as $vo) {
                 if ($vo['active'] === 1) {
-                    if ($parentsUid[$i - 2 - $curLevel] === 0 && $vo['vip_level'] == $i) {
+                    if ($parentsUid[$i -$toLevel] === 0 && $vo['vip_level'] == $i) {
                         if ($vo['total_income'] < $this->maxIncome) {
                             // 如果小于限制的收益金额
-                            $parentsUid[$i - 2 - $curLevel] = intval($vo['uid']);
+                            $parentsUid[$i - $toLevel] = intval($vo['uid']);
                         }
                     }
                 }
