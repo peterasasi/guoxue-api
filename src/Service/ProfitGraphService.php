@@ -115,6 +115,7 @@ class ProfitGraphService extends BaseService implements ProfitGraphServiceInterf
 
         $family = explode(",", rtrim($family, ','));
         $fields = ["uid", "vip_level", "active", "total_income"];
+        // uid 大的 离的近
         $pgList = $this->queryAllBy(['uid' => ['in', $family]], ['uid' => 'desc'], $fields);
         $parentsUid = [];
 
