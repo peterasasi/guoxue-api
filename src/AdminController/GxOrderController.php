@@ -206,9 +206,18 @@ class GxOrderController extends BaseNeedLoginController
         }
         $withdrawAmount = $this->withdrawService->sum($map, "amount");
 
+        $map = [
+        ];
+
+        $userBalanceAmount = $this->userWalletService->sum($map, "balance");
+        $frozen = $this->userWalletService->sum($map, "frozen");
+
         return CallResultHelper::success([
             'gx_order_amount' => empty($gxOrderAmount) ? "0" : $gxOrderAmount,
-            'withdraw_amount' => StringHelper::numberFormat($withdrawAmount / 100)
+            'withdraw_amount' => StringHelper::numberFormat($withdrawAmount / 100),
+            'user_balance_amount' => StringHelper::numberFormat($userBalanceAmount / 100),
+            'user_frozen_amount' => StringHelper::numberFormat($frozen / 100),
+
         ]);
     }
 
