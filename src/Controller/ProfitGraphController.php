@@ -49,4 +49,8 @@ class ProfitGraphController extends BaseNeedLoginController
         $ret = $this->profitGraphService->info($map);
         return $ret;
     }
+
+    public function pvip($curLevel, $vipLevel, $family) {
+        return $this->profitGraphService->getParentsUid($curLevel, $vipLevel, $family);
+    }
 }
