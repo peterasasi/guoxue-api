@@ -22,6 +22,7 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class Pay841Controller extends AbstractController
@@ -100,7 +101,7 @@ class Pay841Controller extends AbstractController
                 if ($gxOrder->getPayStatus() == GxOrder::Paid) {
                     $this->gxOrderService->getEntityManager()->rollback();
                     $this->logger->error('[支付回调] 订单已处理' . $gxOrder->getOrderNo());
-                    return 'success';
+                    return new Response('success');
                 }
                 $gxOrder->setPayStatus(GxOrder::Paid);
                 $gxOrder->setPaidTime(time());
@@ -131,7 +132,7 @@ class Pay841Controller extends AbstractController
                 // 只记录这个
                 $this->logger->error('[支付回调] 处理订单失败' . $ret->getMsg() . ($rawData));
             }
-            return 'success';
+            return new Response('success');
         } catch (Exception $e) {
             $this->logger->error('[ALIPAY NOTIFY ERROR] = ' . $e->getMessage() . json_encode($request->request->all()));
             return 'error' . $e->getMessage();
