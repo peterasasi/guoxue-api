@@ -17,6 +17,7 @@ use App\ServiceInterface\PlatformWalletServiceInterface;
 use App\ServiceInterface\ProfitGraphServiceInterface;
 use App\ServiceInterface\UserWalletServiceInterface;
 use App\ServiceInterface\XftMerchantServiceInterface;
+use by\component\pay841\Pay841;
 use by\component\usdt_pay\UsdtPay;
 use by\component\xft_pay\XftPay;
 use by\infrastructure\base\CallResult;
@@ -227,6 +228,8 @@ class GxPayController extends AbstractController
      * @param Request $request
      * @param $orderNo
      * @return Response
+     * @throws ORMException
+     * @throws OptimisticLockException
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function pay(Request $request, $orderNo)
@@ -238,8 +241,17 @@ class GxPayController extends AbstractController
         }
 
         $fakePay = $this->getPayWay($gxOrder->getProjectId());
-
-        if ($fakePay == 2) {
+        if ($fakePay == 4) {
+            $amount = $gxOrder->getAmount();
+            $pay841 = new Pay841();
+            $notifyUrl = ByEnv::get('PAY841_NOTIFY_URL');
+            $returnUrl = ByEnv::get('PAY841_RETURN_URL');
+            $ret = $pay841->alipay($gxOrder->getOrderNo(), $amount, $notifyUrl, $returnUrl);
+            if ($ret->isFail()) {
+                return $this->render('gxpay/error.html.twig', ['msg' => $ret->getMsg()]);
+            }
+            return new RedirectResponse($ret->getData());
+        } else if ($fakePay == 2) {
             $amount = $gxOrder->getAmount();
             $xftPay = $this->getXftConfig();
             if (is_null($xftPay)) {

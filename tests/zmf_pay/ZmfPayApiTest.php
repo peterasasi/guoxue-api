@@ -9,6 +9,7 @@
 namespace byTest\component\zmf_pay;
 
 use by\component\message_sender\impl\SubmailSmsSender;
+use by\component\pay841\Pay841;
 use by\component\usdt_pay\UsdtPay;
 use by\component\xft_pay\XftPay;
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
@@ -17,18 +18,24 @@ class ZmfPayApiTest extends TestCase
 {
 
     public function testIndex() {
+
+        $pay841 = new Pay841();
+        $url = "http://www.baidu.com";
+        $amount = "100";
+        $ret = $pay841->openDebug()->alipay(date('YmdH').rand(10000000, 99999999), $amount, $url, $url);
+        var_dump($ret);
 //        $url = (new UsdtPay())->getPayUrl('1', '500');
 //        var_dump($url);
 
-        $_SERVER['XFT_PAY_CLIENT_IP'] = '18.163.59.49';
-        $_SERVER['XFT_PAY_APP_ID'] = '';
-        $_SERVER['XFT_PAY_NOTIFY_URL'] = '';
-        $xftPay = new XftPay();
-        $xftPay->getConfig()->setAppId('');
-        $xftPay->getConfig()->setKey('17A746BF7DEE88BBD8EC7376EAB00E9E');
-        $xftPay->getConfig()->setMerchantCode('1330100028739');
-        $ret = $xftPay->getPayUrl(date('YmdH').rand(10000000, 99999999), 200);
-        var_dump($ret);
+//        $_SERVER['XFT_PAY_CLIENT_IP'] = '18.163.59.49';
+//        $_SERVER['XFT_PAY_APP_ID'] = '';
+//        $_SERVER['XFT_PAY_NOTIFY_URL'] = '';
+//        $xftPay = new XftPay();
+//        $xftPay->getConfig()->setAppId('');
+//        $xftPay->getConfig()->setKey('17A746BF7DEE88BBD8EC7376EAB00E9E');
+//        $xftPay->getConfig()->setMerchantCode('1330100028739');
+//        $ret = $xftPay->getPayUrl(date('YmdH').rand(10000000, 99999999), 200);
+//        var_dump($ret);
     }
 
     public function testSms() {
