@@ -58,12 +58,12 @@ class Pay841Controller extends AbstractController
     {
         try {
 
-            $rawData = $request->getContent();
-            $this->logger->error('原始数据'.$rawData);
-            $rawData = $request->request->all();
-            $this->logger->error('原始数据POST'.json_encode($rawData));
-            $rawData = $request->query->all();
-            $this->logger->error('原始数据GET'.json_encode($rawData));
+//            $rawData = $request->getContent();
+//            $this->logger->error('原始数据'.$rawData);
+//            $rawData = $request->request->all();
+//            $this->logger->error('原始数据POST'.json_encode($rawData));
+//            $rawData = $request->query->all();
+//            $this->logger->error('原始数据GET'.json_encode($rawData));
 
             $rawData = $request->query->all();
             try {
