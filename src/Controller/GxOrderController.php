@@ -109,8 +109,9 @@ class GxOrderController extends BaseNeedLoginController
                 return '必须购买课程后才能升级到其它等级';
             }
             $amount = ($level - $userLevel) * $this->gxConfig->getVipUpgrade();
-            // 多加2元
-            $entity->setExtraAmount(2);
+            // 多加0元
+            // 更换通道后去掉2元
+            $entity->setExtraAmount(0);
             $amount += $entity->getExtraAmount();
         } else {
             $amount = $this->gxConfig->getVip1();
