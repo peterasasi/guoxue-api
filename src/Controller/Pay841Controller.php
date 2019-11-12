@@ -100,7 +100,7 @@ class Pay841Controller extends AbstractController
                 if ($gxOrder->getPayStatus() == GxOrder::Paid) {
                     $this->gxOrderService->getEntityManager()->rollback();
                     $this->logger->error('[支付回调] 订单已处理' . $gxOrder->getOrderNo());
-                    return 'already processed';
+                    return 'success';
                 }
                 $gxOrder->setPayStatus(GxOrder::Paid);
                 $gxOrder->setPaidTime(time());
