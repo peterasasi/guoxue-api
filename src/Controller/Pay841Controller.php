@@ -72,7 +72,7 @@ class Pay841Controller extends AbstractController
             } catch (Exception $exception) {
                 return 'notify params invalid';
             }
-
+            $rawData = json_encode($rawData);
             $gxOrder = $this->gxOrderService->info(['order_no' => $np->getOrderNo()]);
             if (!$gxOrder instanceof GxOrder) {
                 $this->logger->error('[订单号不存在]' . ($rawData));
