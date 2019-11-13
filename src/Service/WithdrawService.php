@@ -68,6 +68,7 @@ class WithdrawService extends BaseService implements WithdrawServiceInterface
             'branch_name' => $branchName
         ];
         $entity = new Withdraw();
+        $entity->setUsername($ua->getUsername());
         $entity->setMobile($ua->getMobile());
         $entity->setUid($uid);
         $entity->setAuditUid(0);
