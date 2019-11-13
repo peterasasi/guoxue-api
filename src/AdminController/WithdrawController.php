@@ -107,7 +107,6 @@ class WithdrawController extends BaseNeedLoginController
     public function query(PagingParams $pagingParams, $auditStatus = AuditStatus::Initial)  {
         $this->checkLogin();
         $map = [
-            'uid' => $this->getUid()
         ];
         $map['audit_status'] = intval($auditStatus);
         return $this->withdrawService->queryAndCount($map, $pagingParams, ["createTime" => "desc"]);
