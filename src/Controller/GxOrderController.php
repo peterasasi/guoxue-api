@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Common\GxGlobalConfig;
 use App\Entity\GxOrder;
 use App\Entity\ProfitGraph;
+use App\Entity\UserAccount;
 use App\Helper\CodeGenerator;
 use App\Helper\UserVip;
 use App\ServiceInterface\GxOrderServiceInterface;
@@ -18,6 +19,7 @@ use by\infrastructure\base\CallResult;
 use by\infrastructure\helper\CallResultHelper;
 use Dbh\SfCoreBundle\Common\ByEnv;
 use Dbh\SfCoreBundle\Common\LoginSessionInterface;
+use Dbh\SfCoreBundle\Common\UserAccountInterface;
 use Dbh\SfCoreBundle\Common\UserAccountServiceInterface;
 use Dbh\SfCoreBundle\Controller\BaseNeedLoginController;
 use Symfony\Component\HttpFoundation\Request;
@@ -128,6 +130,10 @@ class GxOrderController extends BaseNeedLoginController
         $entity->setFee($fee);
         $entity->setShowJumpUrl($jumpUrl);
         $entity->setVipItemId($level);
+        $user = $this->getUser();
+        if ($user instanceof UserAccount) {
+            $entity->setUsername($user->getUsername());
+        }
         $this->gxOrderService->add($entity);
         $payUrl = $this->request->getSchemeAndHttpHost() . $this->generateUrl('pay1_start', ['orderNo' => $entity->getOrderNo()]);
         $payUrl = base64_encode($payUrl);

@@ -133,6 +133,11 @@ class GxOrder extends BaseEntity
      */
     private $payConfig;
 
+    /**
+     * @ORM\Column(type="string", length=32)
+     */
+    private $username;
+
     public function __construct()
     {
         parent::__construct();
@@ -150,6 +155,7 @@ class GxOrder extends BaseEntity
         $this->setPw(PayWayConst::PW000);
         $this->setMerchantCode('');
         $this->setPayConfig('');
+        $this->setUsername('');
     }
 
     public function getId(): ?int
@@ -417,6 +423,18 @@ class GxOrder extends BaseEntity
     public function setPayConfig(string $payConfig): self
     {
         $this->payConfig = $payConfig;
+
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
 
         return $this;
     }
