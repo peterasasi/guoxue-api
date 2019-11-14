@@ -55,7 +55,7 @@ class UserBankCardController extends BaseNeedLoginController
         $list = $this->userBankCardService->queryAllBy($map, ['createTime' => 'desc'], $field);
         foreach ($list as &$vo) {
             $vo['card_no'] = ByCrypt::desDecode($vo['card_no']);
-            $vo['card_no'] = ByCrypt::hideSensitive($vo['card_no'], 4, 2, 8);
+//            $vo['card_no'] = ByCrypt::hideSensitive($vo['card_no'], 4, 2, 8);
 //            $vo['id_no'] = ByCrypt::desDecode($vo['id_no']);
 //            $vo['id_no'] = ByCrypt::hideSensitive($vo['id_no'], 4, 3);
 //            $vo['mobile'] = ByCrypt::hideSensitive($vo['mobile'], 3, 4);
