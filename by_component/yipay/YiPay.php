@@ -33,13 +33,12 @@ class YiPay
             'amount' => strval($amount),
             'code' => $this->code,
             'orderNumber' => $orderNo,
-            'notifyUrl' => urlencode($notifyUrl),
+            'notifyUrl' => $notifyUrl,
             'type' => $payType,
             'key' => $this->key
         ];
-//        $data['urlType'] = '2';
-
-        $data['token'] = md5(json_encode($data));
+        $str = json_encode($data, JSON_UNESCAPED_SLASHES);
+        $data['token'] = md5($str);
         if ($this->isDebug) {
             var_dump($data);
         }
