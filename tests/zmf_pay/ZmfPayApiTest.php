@@ -9,9 +9,7 @@
 namespace byTest\component\zmf_pay;
 
 use by\component\message_sender\impl\SubmailSmsSender;
-use by\component\pay841\Pay841;
-use by\component\usdt_pay\UsdtPay;
-use by\component\xft_pay\XftPay;
+use by\component\yipay\YiPay;
 use Symfony\Bundle\FrameworkBundle\Tests\TestCase;
 
 class ZmfPayApiTest extends TestCase
@@ -19,10 +17,14 @@ class ZmfPayApiTest extends TestCase
 
     public function testIndex() {
 
-        $pay841 = new Pay841();
-        $url = "http://www.baidu.com";
-        $amount = "100";
-        $ret = $pay841->openDebug()->alipay(date('YmdH').rand(10000000, 99999999), $amount, $url, $url);
+        var_dump(md5('{"amount":"0.01","code":"td12e2a1014eec09bk","orderNumber":"ZFB2019113015273000080000","notifyUrl":"http://39.98.76.102:9080/user/Ok_ceshi","type":"1","key":"malila_yhhh"}'));
+        $url = "http://39.98.76.102:9080/user/Ok_ceshi";
+        $amount = "5";
+        $orderNo = date('YmdH').rand(10000000, 99999999);
+        $ret = (new YiPay())->openDebug()->alipay($orderNo, $amount, $url);
+
+//        $pay841 = new Pay841();
+//        $ret = $pay841->openDebug()->alipay(date('YmdH').rand(10000000, 99999999), $amount, $url, $url);
         var_dump($ret);
 //        $url = (new UsdtPay())->getPayUrl('1', '500');
 //        var_dump($url);

@@ -30,6 +30,11 @@ class PayWayConst
      */
     const PW841 = 'pw1841';
 
+    /**
+     * 支付通道 1004 - yipay
+     */
+    const PWYIPAY = 'yipay';
+
     private $pw;
 
     public function __construct($pw)
@@ -40,6 +45,8 @@ class PayWayConst
     public function __toString()
     {
         switch ($this->pw) {
+            case self::PWYIPAY:
+                return '易支付';
             case self::PW002:
                 return '星富通';
             case self::PW841:

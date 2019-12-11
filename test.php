@@ -1,10 +1,8 @@
 <?php
 
-$keyArr = ['a', 'b'];
-foreach ($keyArr as $key) {
-    var_dump($key);
-}
+$decode = openssl_decrypt("u41ZWvYoilr8g+WKkA5qTc22fr+TQ7Au", "des-ecb", "5dc542949c724860b4c651a62882fedb");
 
+var_dump($decode);
 //$str = http_build_query(['a' => 'b', 'c'=>'d']);
 //var_dump($str);
 // 股票交易手续费

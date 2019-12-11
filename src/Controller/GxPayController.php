@@ -20,6 +20,7 @@ use App\ServiceInterface\XftMerchantServiceInterface;
 use by\component\pay841\Pay841;
 use by\component\usdt_pay\UsdtPay;
 use by\component\xft_pay\XftPay;
+use by\component\yipay\YiPay;
 use by\infrastructure\base\CallResult;
 use by\infrastructure\constants\StatusEnum;
 use Dbh\SfCoreBundle\Common\ByCacheKeys;
@@ -241,7 +242,15 @@ class GxPayController extends AbstractController
         }
 
         $fakePay = $this->getPayWay($gxOrder->getProjectId());
-        if ($fakePay == 4) {
+        if ($fakePay == 6) {
+            $amount = $gxOrder->getAmount();
+            $notifyUrl = ByEnv::get("YIPAY_NOTIFY_URL");
+            $ret = (new YiPay())->alipay($gxOrder->getOrderNo(), $amount, $notifyUrl);
+            if ($ret->isFail()) {
+                return $this->render('gxpay/error.html.twig', ['msg' => $ret->getMsg()]);
+            }
+            return new RedirectResponse($ret->getData());
+        } else if ($fakePay == 4) {
             $amount = $gxOrder->getAmount();
             $pay841 = new Pay841();
             $notifyUrl = ByEnv::get('PAY841_NOTIFY_URL');
